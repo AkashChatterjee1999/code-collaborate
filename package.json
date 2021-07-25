@@ -1,0 +1,10 @@
+{
+  "name": "Code-Collaborate",
+  "version": "1.0.0",
+  "description": "This is a webbased platforrm for coding along with collboration with people",
+  "main": "index.js",
+  "repository": "https://github.com/AkashChatterjee1999/code-collaborate.git",
+  "author": "Akash Chatterjee",
+  "license": "MIT",
+  "private": false
+}
