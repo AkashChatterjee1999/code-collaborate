@@ -1,0 +1,10 @@
+{
+    "keyword": "#ff9d00",
+    "text": "#9efeff",
+    "comment": "#b362ff",
+    "string": "#a5ff90",
+    "function": "#fad000",
+    "operator": "#ffb454",
+    "punctation": "#fff",
+    "constant": "#ff628c"
+}

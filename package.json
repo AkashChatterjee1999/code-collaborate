@@ -1,10 +1,43 @@
 {
-  "name": "Code-Collaborate",
-  "version": "1.0.0",
-  "description": "This is a webbased platforrm for coding along with collboration with people",
-  "main": "index.js",
-  "repository": "https://github.com/AkashChatterjee1999/code-collaborate.git",
-  "author": "Akash Chatterjee",
-  "license": "MIT",
-  "private": false
+  "name": "code-collaborate",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "html-react-parser": "^1.2.7",
+    "prismjs": "^1.24.1",
+    "react": "^17.0.2",
+    "react-custom-scrollbars": "^4.2.1",
+    "react-dom": "^17.0.2",
+    "react-feather": "^2.0.9",
+    "react-scripts": "4.0.3",
+    "reactstrap": "^8.9.0",
+    "web-vitals": "^1.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }

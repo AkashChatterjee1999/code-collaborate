@@ -1,0 +1,4 @@
+@font-face {
+    font-family: 'Prompt';
+    src: local('Prompt'), url(./assets/Prompt/Prompt-Regular.ttf) format('truetype');
+}
