@@ -1,4 +1,26 @@
 @font-face {
-    font-family: 'Prompt';
-    src: local('Prompt'), url(./assets/Prompt/Prompt-Regular.ttf) format('truetype');
+  font-family: "Prompt";
+  src: local("Prompt"),
+    url(./assets/Prompt/Prompt-Regular.ttf) format("truetype");
+}
+@font-face {
+  font-family: "Operator-Mono";
+  src: local("Operator-Mono"),
+    url(./assets/FontsFree-Net-OperatorMono-Medium.ttf) format("truetype");
+}
+
+::-webkit-scrollbar {
+  height: 2px;
+  width: 2px;
+}
+
+::-webkit-scrollbar-track {
+  width: 2px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  width: 2px;
+  opacity: 0.8;
+  background: #f1f1f1;
 }

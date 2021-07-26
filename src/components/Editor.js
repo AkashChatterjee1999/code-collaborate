@@ -7,6 +7,7 @@ import {
   Nav,
   NavItem,
   NavLink,
+  CustomInput,
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
@@ -15,165 +16,308 @@ import {
   Container,
   Row,
   Col,
-} from 'reactstrap';
-import Prism from "prismjs";
-import { Terminal } from 'react-feather';
-import syntaxHighlighter from "../utils/syntaxHighlighter";
-import parse from 'html-react-parser';
+} from "reactstrap";
+import { ArrowRight, ChevronRight, Terminal } from "react-feather";
+const selectedTabColor = "#5d5d6f";
 
 class Editor extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isOpen: false,
+      ref: React.createRef(),
+      codeRef: React.createRef(),
+      code: "",
+      formattedCode: "",
+      lineNo: 0,
+      isParticipantsViewing: true,
+      clients: [
+        { name: "Akash Chatterjee", email: "akashchatterjee1000@gmail.com" },
+        { name: "Souronil Chatterjee", email: "souronil72@gmail.com" },
+      ],
+      chats: [
+        { name: "Akash Chatterjee", text: "Hello Souro!", time: "18:50" },
+      ],
+      supportedLanguages: ["html", "javascript"],
+    };
+  }
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            isOpen: false,
-            ref: React.createRef(),
-            code: "",
-            formattedCode: "",
-            lineNo: 0,
-            supportedLanguages: ['html', 'javascript']
-        }
-    }
+  codeChangeHandler = (e) => {
+    console.log(this.state.ref.current.innerText);
+    this.setState({ code: this.state.ref.current.innerText });
+  };
 
-    componentDidMount() {
-        if (this.ref && this.ref.current) {
-            Prism.highlightElement(this.ref.current)
-        }
-    }
-
-    componentDidUpdate() {
-        if (this.ref && this.ref.current) {
-            console.log("Gelo");
-            Prism.highlightElement(this.ref.current)
-        }
-    }
-      
-       getCaretPosition = () => {
-        if (window.getSelection && window.getSelection().getRangeAt) {
-          var range = window.getSelection().getRangeAt(0);
-          var selectedObj = window.getSelection();
-          var rangeCount = 0;
-          var childNodes = selectedObj.anchorNode.parentNode.childNodes;
-          for (var i = 0; i < childNodes.length; i++) {
-            if (childNodes[i] == selectedObj.anchorNode) {
-              break;
-            }
-            if (childNodes[i].outerHTML)
-              rangeCount += childNodes[i].outerHTML.length;
-            else if (childNodes[i].nodeType == 3) {
-              rangeCount += childNodes[i].textContent.length;
-            }
-          }
-          return range.startOffset + rangeCount;
-        }
-        return -1;
-      }
-    
-    appendCode = (char) => {
-      let lNo = this.state.lineNo;
-      console.log(this.state.cursorPos, this.state.lineNo)
-      for(let i=0; i<this.state.code.length; i++) {
-        if(lNo === 0) return this.state.code.substr(0, i + this.getCaretPosition()) + char + this.state.code.substr(i + this.getCaretPosition());
-        if(this.state.code[i] === '\n') lNo --;
-      }
-      return this.state.code + char
-    }
-
-    deleteCode = isBackspace => {
-      let lNo = this.state.lineNo;
-      console.log(this.getCaretPosition(), this.state.lineNo, "delete")
-      for(let i=0; i<this.state.code.length; i++) {
-        if(lNo === 0) {
-          console.log("deletepoefbj", isBackspace, this.state.code[i + this.getCaretPosition() - 1] === "\n")
-          if(isBackspace && this.getCaretPosition() === 1) {
-            console.log("Hello");
-            this.setState({ lineNo: this.state.lineNo - 1 },() => {
-              return isBackspace? 
-                this.state.code.substr(0, i + this.getCaretPosition() - 1) + this.state.code.substr(i + this.getCaretPosition())
-                : this.state.code.substr(0, i + this.getCaretPosition()) + this.state.code.substr(i + this.getCaretPosition() + 1);
-              })
-          } else {
-            return isBackspace? 
-                this.state.code.substr(0, i + this.getCaretPosition() - 1) + this.state.code.substr(i + this.getCaretPosition())
-                : this.state.code.substr(0, i + this.getCaretPosition()) + this.state.code.substr(i + this.getCaretPosition() + 1);
-          }
-        }
-        if(this.state.code[i] === '\n') lNo --;
-      }
-      console.log("lola", lNo, this.state.lineNo);
-      return ""
-    }
-
-    codeChangeHandler = e => { 
-        console.log("codechangeHandler", this.getCaretPosition(), this.state.lineNo);
-        if(e.key === "Enter") {
-            this.setState({ code: this.state.code + '\n', lineNo: this.state.lineNo + 1 }, () => {
-                this.setState({ formattedCode: syntaxHighlighter(this.state.code) })
-            })
-        } else if(e.key === "Backspace") {
-          console.log(this.deleteCode(true))
-          this.setState({ code: this.deleteCode(true) }, () => {
-            this.setState({ formattedCode: syntaxHighlighter(this.state.code) })
-          })
-        } else if(e.key === "Delete") {
-          console.log(this.deleteCode(false))
-          this.setState({ code: this.deleteCode(false) }, () => {
-            this.setState({ formattedCode: syntaxHighlighter(this.state.code) })
-          })
-        } else if(e.key === "ArrowUp") {
-            this.setState({ lineNo: this.state.lineNo - 1 });
-        } else if(e.key === "ArrowDown") {
-            this.setState({ lineNo: this.state.lineNo + 1 });
-        } else if(e.key.length === 1) {
-            this.setState({ code: this.appendCode(e.key) }, () => {
-                this.setState({ formattedCode: syntaxHighlighter(this.state.code) })
-            })
-        } 
-    }
-
-    toggle = () => this.setState({ isOpen: !this.state.isOpen});
-    render() {
-        return (
-            <Container fluid style= {{ backgroundColor: "#353f57", height: "100vh", overflow: "hidden" }}>
-              <Navbar dark expand="md">
-                <NavbarBrand href="/">
-                    <Terminal size="40px" strokeWidth="4px" color="#f5791b"/>
-                </NavbarBrand>
-                <NavbarToggler onClick={this.toggle} />
-                <Collapse isOpen={this.state.isOpen} navbar>
-                  <Nav navbar style={{ marginLeft: "auto"}}>
-                  </Nav>
-                </Collapse>
-              </Navbar>
-              <Container fluid className="m-0" style={{ "height": "100%"}}>
-                <Row style={{ "height": "100%"}}>
-                    <Col className="m-0 py-2" md={9} style={{height: "100%", maxHeight: "100%", overflow: "hidden", flexFlow: "column"}}>
-                        <Container className="px-0 py-2" style={{ height: "90%" }}>
-                            <div style={{ 
-                                height: "100%", 
-                                width: "100%", 
-                                maxHeight: "100%", 
-                                maxWidth: "100%",  
-                                overflow: "scroll",
-                                boxSizing: "border-box", 
-                                outline: "none", 
-                                border: "none", 
-                                color: "#9efeff",
-                                backgroundColor: "#1e1e3f" 
-                            }}>
-                            <div contentEditable onKeyDown={this.codeChangeHandler} onClick={(e) => { console.log(this.getCaretPosition()) }}></div>
-                            <pre>
-                                {parse(this.state.formattedCode)}
-                            </pre>
-                            </div>       
-                        </Container>
-                    </Col>
-                    <Col className="m-0" md={3} style={{height: "100%", overflow: "hidden", flexFlow: "column"}}>
-                    </Col>
-              </Row>
+  toggle = () => this.setState({ isOpen: !this.state.isOpen });
+  render() {
+    return (
+      <Container
+        fluid
+        style={{
+          backgroundColor: "#353f57",
+          height: "100vh",
+          overflow: "hidden",
+        }}
+      >
+        <Navbar dark expand="md">
+          <NavbarBrand href="/">
+            <Terminal size="40px" strokeWidth="4px" color="#f5791b" />
+            <NavbarText size="35px">Code-Collaborate</NavbarText>
+          </NavbarBrand>
+          <NavbarToggler onClick={this.toggle} />
+          <Collapse isOpen={this.state.isOpen} navbar>
+            <Nav navbar style={{ marginLeft: "auto", color: "#949bac" }}>
+              <NavItem className="px-2">
+                <UncontrolledDropdown nav inNavbar>
+                  <DropdownToggle nav caret>
+                    Font-Size: 10
+                  </DropdownToggle>
+                  <DropdownMenu right>
+                    <DropdownItem>12</DropdownItem>
+                    <DropdownItem>14</DropdownItem>
+                  </DropdownMenu>
+                </UncontrolledDropdown>
+              </NavItem>
+              <NavItem className="px-2">
+                <UncontrolledDropdown nav inNavbar>
+                  <DropdownToggle nav caret>
+                    javascript
+                  </DropdownToggle>
+                  <DropdownMenu right>
+                    <DropdownItem>lola</DropdownItem>
+                    <DropdownItem>fala</DropdownItem>
+                    <DropdownItem divider />
+                    <DropdownItem>Reset</DropdownItem>
+                  </DropdownMenu>
+                </UncontrolledDropdown>
+              </NavItem>
+            </Nav>
+          </Collapse>
+        </Navbar>
+        <Container fluid className="m-0" style={{ height: "100%" }}>
+          <Row style={{ height: "100%" }}>
+            <Col
+              className="m-0 py-2"
+              lg={9}
+              md={7}
+              style={{
+                height: "100%",
+                maxHeight: "100%",
+                overflow: "hidden",
+                flexFlow: "column",
+              }}
+            >
+              <Container className="px-0 py-2" style={{ height: "85%" }}>
+                <Row className="px-3">
+                  <div
+                    className="text-center py-2"
+                    style={{
+                      fontSize: "0.9rem",
+                      width: "20%",
+                      height: "35px",
+                      color: "white",
+                      borderTopRightRadius: "15px",
+                      borderTopLeftRadius: "15px",
+                      backgroundColor: "#2d2d44",
+                    }}
+                  >
+                    Hello.js
+                  </div>
+                </Row>
+                <div
+                  className="px-3 py-2"
+                  style={{
+                    height: "100%",
+                    width: "100%",
+                    maxHeight: "100%",
+                    maxWidth: "100%",
+                    borderRadius: "1%",
+                    boxSizing: "border-box",
+                    outline: "none",
+                    border: "none",
+                    color: "#9efeff",
+                    backgroundColor: "#1e1e3f",
+                  }}
+                >
+                  <pre
+                    ref={this.state.ref}
+                    contentEditable="true"
+                    style={{
+                      fontFamily: "Operator-Mono",
+                      outline: "none",
+                      fontSize: "20px",
+                      overflow: "scroll",
+                      height: "100%",
+                    }}
+                    onKeyPress={(e) =>
+                      setTimeout(() => this.codeChangeHandler(), 0)
+                    }
+                  >
+                    <div>// Write some code here</div>
+                    <br />
+                  </pre>
+                </div>
               </Container>
-            </Container>
-        );
-    }
+            </Col>
+            <Col
+              className="m-0"
+              lg={3}
+              md={5}
+              style={{ height: "100%", overflow: "hidden", flexFlow: "column" }}
+            >
+              <div
+                className="px-3 py-2"
+                style={{
+                  height: "87%",
+                  width: "100%",
+                  maxHeight: "90%",
+                  maxWidth: "100%",
+                  borderRadius: "1%",
+                  boxSizing: "border-box",
+                  outline: "none",
+                  border: "none",
+                  backgroundColor: "#1e1e3f",
+                }}
+              >
+                <h4
+                  className="text-center"
+                  style={{ fontSize: "20px", color: "white" }}
+                >
+                  Participants
+                </h4>
+                <hr style={{ height: "5px", backgroundColor: "white" }} />
+                <div className="px-1" style={{ color: "#949bac" }}>
+                  <Row
+                    className="px-2 mb-2"
+                    n
+                    style={{ justifyContent: "space-between" }}
+                  >
+                    <Col sm={6} className="px-0">
+                      <div
+                        className="text-center p-2"
+                        style={{
+                          fontSize: "0.85rem",
+                          width: "98%",
+                          height: "35px",
+                          color: "white",
+                          backgroundColor: this.state.isParticipantsViewing
+                            ? selectedTabColor
+                            : "#2d2d44",
+                        }}
+                        onClick={(e) =>
+                          this.setState({ isParticipantsViewing: true })
+                        }
+                      >
+                        Participants
+                      </div>
+                    </Col>
+                    <Col sm={6} className="px-0">
+                      <div
+                        className="text-center py-2"
+                        style={{
+                          fontSize: "0.9rem",
+                          width: "98%",
+                          height: "35px",
+                          color: "white",
+                          backgroundColor: !this.state.isParticipantsViewing
+                            ? selectedTabColor
+                            : "#2d2d44",
+                        }}
+                        onClick={(e) =>
+                          this.setState({ isParticipantsViewing: false })
+                        }
+                      >
+                        chat
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+                <div
+                  className="d-flex"
+                  style={{ height: "92%", flexDirection: "column" }}
+                >
+                  {this.state.isParticipantsViewing ? (
+                    <div
+                      className="d-flex"
+                      style={{
+                        overflow: "scroll",
+                        flexDirection: "column",
+                        height: "90%",
+                        overflowX: "hidden",
+                      }}
+                    >
+                      {this.state.clients.map((client) => {
+                        return (
+                          <Row className="p-2">
+                            <Col sm={3}>
+                              <Container
+                                fluid
+                                style={{
+                                  backgroundColor: "white",
+                                  borderRadius: "100%",
+                                  width: "45px",
+                                  height: "45px",
+                                }}
+                              ></Container>
+                            </Col>
+                            <Col
+                              sm={9}
+                              style={{ color: "white", fontSize: "12px" }}
+                            >
+                              <p className="mb-1">{client.name}</p>
+                              <p className="text">{client.email}</p>
+                            </Col>
+                          </Row>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div
+                      className="d-flex"
+                      style={{
+                        overflow: "scroll",
+                        flexDirection: "column",
+                        height: "90%",
+                        overflowX: "hidden",
+                      }}
+                    >
+                      <Container
+                        fluid
+                        style={{
+                          height: "90%",
+                          display: "flex",
+                          flexDirection: "columns",
+                        }}
+                      >
+                        {this.state.chats.map((chat) => {
+                          return (
+                            <p style={{ height: "30px", color: "white" }}>
+                              {chat.text}
+                            </p>
+                          );
+                        })}
+                      </Container>
+                      <Container style={{ height: "10%" }}>
+                        <Row className="px-2" style={{ bottom: "10px" }}>
+                          <Col sm={11}>
+                            <CustomInput
+                              style={{ width: "100%" }}
+                              type="text"
+                            />
+                          </Col>
+                          <Col sm={1} className="px-1">
+                            <ArrowRight color="white" />
+                          </Col>
+                        </Row>
+                      </Container>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </Container>
+    );
+  }
 }
-export default Editor
+export default Editor;
