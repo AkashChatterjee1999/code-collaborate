@@ -4,6 +4,13 @@
     url(./assets/Prompt/Prompt-Regular.ttf) format("truetype");
 }
 @font-face {
+  font-family: "Prompt";
+  font-weight: normal;
+  font-style: normal;
+  src: local("Prompt"),
+    url(./assets/Prompt/Prompt-Medium.ttf) format("truetype");
+}
+@font-face {
   font-family: "Operator-Mono";
   src: local("Operator-Mono"),
     url(./assets/FontsFree-Net-OperatorMono-Medium.ttf) format("truetype");
