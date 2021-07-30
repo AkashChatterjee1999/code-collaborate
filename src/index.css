@@ -16,6 +16,13 @@
     url(./assets/FontsFree-Net-OperatorMono-Medium.ttf) format("truetype");
 }
 
+@font-face {
+  font-family: "Prompt";
+  font-weight: 200;
+  font-style: normal;
+  src: local("Prompt"), url(./assets/Prompt/Prompt-Black.ttf) format("truetype");
+}
+
 ::-webkit-scrollbar {
   height: 2px;
   width: 2px;
