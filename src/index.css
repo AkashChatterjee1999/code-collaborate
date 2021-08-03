@@ -1,14 +1,42 @@
 @font-face {
   font-family: "Prompt";
+  font-weight: normal;
+  font-style: normal;
+  src: local("Prompt"),
+    url(./assets/Prompt/Prompt-Medium.ttf) format("truetype");
+}
+@font-face {
+  font-family: "Prompt";
+  font-weight: 100;
+  font-style: normal;
+  src: local("Prompt"), url(./assets/Prompt/Prompt-Thin.ttf) format("truetype");
+}
+@font-face {
+  font-family: "Prompt";
+  font-weight: 200;
+  font-style: normal;
+  src: local("Prompt"), url(./assets/Prompt/Prompt-Light.ttf) format("truetype");
+}
+@font-face {
+  font-family: "Prompt";
+  font-weight: 400;
+  font-style: normal;
   src: local("Prompt"),
     url(./assets/Prompt/Prompt-Regular.ttf) format("truetype");
 }
 @font-face {
   font-family: "Prompt";
-  font-weight: normal;
+  font-weight: 500;
   font-style: normal;
   src: local("Prompt"),
     url(./assets/Prompt/Prompt-Medium.ttf) format("truetype");
+}
+@font-face {
+  font-family: "Prompt";
+  font-weight: 600;
+  font-style: normal;
+  src: local("Prompt"),
+    url(./assets/Prompt/Prompt-SemiBold.ttf) format("truetype");
 }
 @font-face {
   font-family: "Operator-Mono";
@@ -16,11 +44,8 @@
     url(./assets/FontsFree-Net-OperatorMono-Medium.ttf) format("truetype");
 }
 
-@font-face {
-  font-family: "Prompt";
-  font-weight: 200;
-  font-style: normal;
-  src: local("Prompt"), url(./assets/Prompt/Prompt-Black.ttf) format("truetype");
+.ml-auto {
+  margin-left: auto;
 }
 
 ::-webkit-scrollbar {

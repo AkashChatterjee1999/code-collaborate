@@ -1,9 +1,8 @@
-import Editor from "./components/Editor";
+//import Editor from "./components/Editor";
+import CollabEditor from "./components/CollabEditor";
 
 function App() {
-  return (
-    <Editor />
-  );
+  return <CollabEditor />;
 }
 
 export default App;
