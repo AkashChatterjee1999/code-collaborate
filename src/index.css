@@ -44,6 +44,12 @@
     url(./assets/FontsFree-Net-OperatorMono-Medium.ttf) format("truetype");
 }
 
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+}
+
 .ml-auto {
   margin-left: auto;
 }

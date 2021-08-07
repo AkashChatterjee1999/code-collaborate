@@ -29,6 +29,7 @@ import {
 } from "react-feather";
 import StatusHeaderDropdown from "../components/statusHeaderDropdown";
 import { colorConfigs } from "../config/configs";
+import MainPanelComponent from "../components/MainPanelComponent";
 import ParticipantsPanelComponent from "./participantsPanelComponent";
 import person1Sm from "../assets/images/person1-about-us-sm.png";
 import person2Sm from "../assets/images/person2-about-us-sm.png";
@@ -177,26 +178,7 @@ class CollabEditor extends React.Component {
                 overflow: "hidden",
               }}
             >
-              <div
-                className="d-flex px-3"
-                style={{
-                  backgroundColor: colorConfigs.tabHeaders,
-                  height: defaultTabHeight,
-                  borderTopRightRadius: "10px",
-                  borderTopLeftRadius: "10px",
-                }}
-              >
-                <p
-                  className="my-auto"
-                  style={{
-                    fontSize: "11px",
-                    width: "fit-content",
-                    fontWeight: 500,
-                  }}
-                >
-                  {"Main Panel"}
-                </p>
-              </div>
+              <MainPanelComponent />
             </Container>
           </Col>
           <Col md={3} className="py-3" style={{ height: "87vh" }}>

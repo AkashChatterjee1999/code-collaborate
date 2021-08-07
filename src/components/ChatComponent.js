@@ -1,4 +1,6 @@
+import { nonEmptyArray } from "check-types";
 import React from "react";
+import { ArrowRight, Mic, Smile } from "react-feather";
 import { Container, Row, Col } from "reactstrap";
 import ParticipantComponent from "../components/ParticipantComponent";
 import { colorConfigs } from "../config/configs";
@@ -7,6 +9,7 @@ import {
   defaultSubTabHeight,
   rightSidebarTabHeights,
 } from "../config/configs";
+const ParticipantIconSize = "16px";
 
 class ChatComponent extends React.Component {
   constructor(props) {
@@ -39,10 +42,56 @@ class ChatComponent extends React.Component {
           style={{
             height: rightSidebarTabHeights,
             backgroundColor: colorConfigs.darkGrey,
-            overflow: "scroll",
+            overflow: "hidden",
           }}
         >
-          {/*Your chat window data here */}
+          <Container
+            style={{ width: "100%", height: "75%", overflow: "scroll" }}
+          ></Container>
+          <hr />
+          <Container className="d-flex m-0 p-0" style={{ height: "12%" }}>
+            <textarea
+              placeholder="Send a Message"
+              className="px-3 mb-2"
+              style={{
+                width: "70%",
+                height: "100%",
+                resize: "none",
+                backgroundColor: "transparent",
+                color: "white",
+                borderRadius: "20px",
+                border: "2px solid gray",
+                outlineColor: "transparent",
+                fontSize: "12px",
+              }}
+            ></textarea>
+            <Row
+              className="m-auto"
+              style={{ width: "80px", justifyContent: "space-evenly" }}
+            >
+              <div className="px-0" style={{ width: "fit-content" }}>
+                <Mic
+                  color="gray"
+                  style={{ width: "fit-content" }}
+                  size={ParticipantIconSize}
+                />
+              </div>
+              <div className="px-0" style={{ width: "fit-content" }}>
+                <Smile
+                  color="gray"
+                  style={{ width: "fit-content" }}
+                  size={ParticipantIconSize}
+                />
+              </div>
+              <div className="px-0" style={{ width: "fit-content" }}>
+                <ArrowRight
+                  color="gray"
+                  style={{ width: "fit-content" }}
+                  size={ParticipantIconSize}
+                />
+              </div>
+            </Row>
+          </Container>
         </Container>
       </Container>
     );
