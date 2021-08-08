@@ -8,13 +8,15 @@ import {
 } from "../config/configs";
 import { Code, Grid, FileText } from "react-feather";
 import CodingComponent from "./CodingComponent";
+import VideoCallsComponent from "./VideoCallsComponent";
+import DiscussionComponent from "./DiscussionComponent";
 const MainPanelIconSize = "16px";
 
 class MainPanelComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      langDropdownOpen: false,
+      selectedPanel: 2,
     };
   }
   render() {
@@ -46,7 +48,11 @@ class MainPanelComponent extends React.Component {
             className="my-auto ml-auto justify-content-between px-3"
             style={{ width: "100px" }}
           >
-            <div className="px-0" style={{ width: "fit-content" }}>
+            <div
+              className="px-0"
+              style={{ width: "fit-content", cursor: "pointer" }}
+              onClick={(e) => this.setState({ selectedPanel: 1 })}
+            >
               <Code
                 strokeWidth={"2px"}
                 color="white"
@@ -54,7 +60,11 @@ class MainPanelComponent extends React.Component {
                 size={MainPanelIconSize}
               />
             </div>
-            <div className="px-0" style={{ width: "fit-content" }}>
+            <div
+              className="px-0"
+              style={{ width: "fit-content", cursor: "pointer" }}
+              onClick={(e) => this.setState({ selectedPanel: 2 })}
+            >
               <Grid
                 strokeWidth={"2px"}
                 color="white"
@@ -62,7 +72,11 @@ class MainPanelComponent extends React.Component {
                 size={MainPanelIconSize}
               />
             </div>
-            <div className="px-0" style={{ width: "fit-content" }}>
+            <div
+              className="px-0"
+              style={{ width: "fit-content", cursor: "pointer" }}
+              onClick={(e) => this.setState({ selectedPanel: 3 })}
+            >
               <FileText
                 strokeWidth={"2px"}
                 color="white"
@@ -72,7 +86,13 @@ class MainPanelComponent extends React.Component {
             </div>
           </Row>
         </div>
-        <CodingComponent />
+        {this.state.selectedPanel === 1 ? (
+          <CodingComponent />
+        ) : this.state.selectedPanel === 2 ? (
+          <VideoCallsComponent />
+        ) : (
+          <DiscussionComponent />
+        )}
       </Container>
     );
   }

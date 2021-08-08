@@ -9,8 +9,8 @@ import {
   rightSidebarTabHeights,
 } from "../config/configs";
 import "./styles/codingComponent.scss";
-import hljs from "highlight.js";
-import "../../node_modules/highlight.js/styles/github.css";
+import syntaxHighlighter from "../utils/syntaxHighlighter";
+
 const MainSubPanelIconSize = "12px";
 const MainPanelContainerHeight = `calc( 100% - ( ${defaultTabHeight} + ${defaultSubTabHeight} ) )`;
 
@@ -33,12 +33,6 @@ class CodingComponent extends React.Component {
       this.setState({ displayDropDown: false });
     };
   }
-  highlighter = () => {
-    this.codeEditor.current.childNodes.forEach((node) => {
-      console.log(node);
-      hljs.highlightElement(node);
-    });
-  };
   render() {
     return (
       <>
@@ -140,7 +134,13 @@ class CodingComponent extends React.Component {
               resize: "none",
               color: jsColorCodes.text,
             }}
-            onKeyPress={this.highlighter}
+            // onKeyPress={(e) =>
+            //   setTimeout(() => {
+            //     this.codeEditor.current.innerHTML = syntaxHighlighter(
+            //       this.codeEditor.current.innerText
+            //     );
+            //   }, 0)
+            // }
           >
             <div>//Write from here</div>
           </pre>

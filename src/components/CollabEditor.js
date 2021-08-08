@@ -37,6 +37,7 @@ import person3Sm from "../assets/images/person3-about-us-sm.png";
 import person4Sm from "../assets/images/person4-about-us-sm.png";
 import InputOutputComponent from "./inputOutputComponent";
 import ChatComponent from "./ChatComponent";
+import PeerToPeerConnection from "../utils/peerJsHelpers";
 import {
   defaultTabHeight,
   defaultSubTabHeight,
@@ -75,6 +76,9 @@ class CollabEditor extends React.Component {
       ],
     };
   }
+  componentDidMount = () => {
+    global.me = new PeerToPeerConnection();
+  };
   render() {
     return (
       <Container
