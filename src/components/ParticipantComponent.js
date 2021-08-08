@@ -62,25 +62,13 @@ class ParticipantComponent extends React.Component {
             style={{ width: "100px", justifyContent: "space-evenly" }}
           >
             <div className="px-0" style={{ width: "fit-content" }}>
-              <Mic
-                color="gray"
-                style={{ width: "fit-content" }}
-                size={ParticipantIconSize}
-              />
+              <Mic color="gray" size={ParticipantIconSize} />
             </div>
             <div className="px-0" style={{ width: "fit-content" }}>
-              <Video
-                color="gray"
-                style={{ width: "fit-content" }}
-                size={ParticipantIconSize}
-              />
+              <Video color="gray" size={ParticipantIconSize} />
             </div>
             <div className="px-0" style={{ width: "fit-content" }}>
-              <Info
-                color="gray"
-                style={{ width: "fit-content" }}
-                size={ParticipantIconSize}
-              />
+              <Info color="gray" size={ParticipantIconSize} />
             </div>
           </Row>
         </Container>

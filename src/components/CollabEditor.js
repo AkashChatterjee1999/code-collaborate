@@ -169,13 +169,14 @@ class CollabEditor extends React.Component {
               participants={this.state.participants}
             />
           </Col>
-          <Col md={6} className="py-3" style={{ height: "80vh" }}>
+          <Col md={6} className="py-3" style={{ height: "87vh" }}>
             <Container
               className="p-0"
               fluid
               style={{
                 color: "white",
                 overflow: "hidden",
+                height: "100%",
               }}
             >
               <MainPanelComponent />

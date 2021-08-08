@@ -1,0 +1,14 @@
+.lang-options {
+  background-color: transparent;
+  color: white;
+  &:hover {
+    background: white !important;
+    color: black !important;
+  }
+}
+.editor {
+  &:focus {
+    outline: 0px solid transparent;
+    border: 0px solid transparent;
+  }
+}
