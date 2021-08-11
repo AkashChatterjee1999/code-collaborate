@@ -51,7 +51,7 @@ class VideoCallsComponent extends React.Component {
     });
 
     this.setState({ currentBrowserStream }, () =>
-      this.callAnotherUser("54dff6b6-1e67-4878-bc52-c38d42504780")
+      this.callAnotherUser("46ba2dd0-0f3b-427c-80c8-b95fd297ba42")
     );
   };
 
@@ -60,18 +60,25 @@ class VideoCallsComponent extends React.Component {
       userId,
       this.state.currentBrowserStream
     );
+    let videoWrapperDOM = new DOMParser().parseFromString(
+      `<div id="video-wrapper-div" class="col-md-4 px-1" style="height: 20vh;overflow: hidden;borderRadius: 20px;"></div>`,
+      "text/html"
+    );
+    let videoWrapper = videoWrapperDOM.getElementById("video-wrapper-div");
     let otherUsersVideoStream = document.createElement("video");
+    otherUsersVideoStream.className += " h-100 w-100";
+    otherUsersVideoStream.style = `borderRadius: 20px;`;
+    videoWrapper.appendChild(otherUsersVideoStream);
     anotherUserCallObj.on("stream", (stream) => {
-      console.log("Hola stam:::", stream);
       otherUsersVideoStream.srcObject = stream;
       otherUsersVideoStream.addEventListener("loadedmetadata", () => {
         otherUsersVideoStream.play();
       });
-      this.videostreamsListRef.current.appendChild(otherUsersVideoStream);
+      this.videostreamsListRef.current.appendChild(videoWrapper);
     });
 
     anotherUserCallObj.on("close", () => {
-      otherUsersVideoStream.remove();
+      videoWrapper.remove();
     });
   };
 
@@ -102,6 +109,7 @@ class VideoCallsComponent extends React.Component {
           >
             <Col
               md={4}
+              className="px-1"
               style={{
                 height: "20vh",
                 overflow: "hidden",
