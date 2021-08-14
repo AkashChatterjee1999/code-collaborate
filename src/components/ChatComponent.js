@@ -1,40 +1,35 @@
-import { nonEmptyArray } from "check-types";
 import React from "react";
 import { ArrowRight, Mic, Smile } from "react-feather";
 import { Container, Row, Col } from "reactstrap";
-import ParticipantComponent from "../components/ParticipantComponent";
 import { colorConfigs } from "../config/configs";
-import person1Sm from "../assets/images/person1-about-us-sm.png";
-import person2Sm from "../assets/images/person2-about-us-sm.png";
 import {
   defaultTabHeight,
   defaultSubTabHeight,
   rightSidebarTabHeights,
 } from "../config/configs";
+import { isEqual } from "lodash";
 const ParticipantIconSize = "16px";
 
 class ChatComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      chats: [
-        {
-          profilePic: person1Sm,
-          sender: "Rahul Prasad",
-          message:
-            "Hello all, welcome to todays session in how to write code so that you caan learn and develop some new things based on that",
-          timeStamp: "11:20",
-        },
-        {
-          profilePic: person2Sm,
-          sender: "Kapil Patil",
-          message:
-            "Thanks Rahul, for the warm welcome. We too are excited to join in this session, let's start",
-          timeStamp: "11:22",
-        },
-      ],
+      chats: [],
     };
   }
+
+  componentDidMount() {
+    let chats = [...this.props.chats];
+    this.setState({ chats });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!isEqual(prevProps, this.props)) {
+      let chats = [...this.props.chats];
+      this.setState({ chats });
+    }
+  }
+
   render() {
     return (
       <Container className="px-0">

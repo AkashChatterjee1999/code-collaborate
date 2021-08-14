@@ -62,7 +62,9 @@ class ParticipantsPanelComponent extends Component {
               width: "fit-content",
               fontWeight: 500,
             }}
-          >{`Participants (${10})`}</p>
+          >{`Participants (${
+            Array.from(this.state.participants.keys()).length + 1
+          }})`}</p>
         </div>
         <div
           className="d-flex px-3"
@@ -109,7 +111,6 @@ class ParticipantsPanelComponent extends Component {
           style={{ overflowY: "scroll", height: "75vh" }}
         >
           {Array.from(this.state.participants.keys()).map((key) => {
-            console.log(key, this.state.participants);
             return (
               <ParticipantComponent
                 key={key}

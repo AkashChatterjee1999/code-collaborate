@@ -1,11 +1,11 @@
-import WebSockets from "ws";
 import { socketEvents } from "../config/configs";
 import PeerToPeerConnection from "../utils/peerJsHelpers";
 
 class CollabSetupInitiator {
-  constructor(socketDomain, profileName, profilePicURL, location) {
+  constructor(socketDomain, profileName, profilePicURL, location, email) {
     this.id = null;
     this.clientName = profileName;
+    this.email = email;
     this.profilePicURL = profilePicURL;
     this.clientLocation = location;
     this.socketAddress = socketDomain;
@@ -25,17 +25,19 @@ class CollabSetupInitiator {
      * Step3. Check the mappings of clients and call them using peerjs
      */
 
-    this.socketPointer = new WebSockets(`ws://${this.socketAddress}`);
+    this.socketPointer = new WebSocket(`ws://${this.socketAddress}`);
 
-    this.socketPointer.on("open", () => {
+    this.socketPointer.onopen = () => {
       console.log("Connected to CollabSocket-Server");
-    });
+    };
 
-    this.socketPointer.on("close", () => {
+    this.socketPointer.onclose = () => {
       console.log("Disconnected from CollabSocket-Server");
-    });
+    };
 
-    this.socketPointer.on("message", (data) => {
+    this.socketPointer.onmessage = (socketDataPacket) => {
+      let data = socketDataPacket.data;
+      console.log("Socket Server Data: ", data);
       try {
         // if the data is parseable JSON data
         data = JSON.parse(data);
@@ -44,13 +46,13 @@ class CollabSetupInitiator {
           case socketEvents.openEvent: {
             /**
              * When socket connection is successfull first socket server will send an id and clients already connected
+             * This is not the final id, after client_info is acknowledged final client_id is assigned to clioent.
              * In response to this client needs to send their info to the socket server
              * Socket server then broadcast this event as CLIENT_CONNECTED event to all the participants in room
              * When the client gets disconnected then again socket server issues CLIENT_DISCONNECTED event and broadcasts this
              */
 
             this.id = data.metadataData.id;
-            global.me = new PeerToPeerConnection(this.id);
 
             /**
              * Getting the peers connected in the room and adding them to the map
@@ -62,6 +64,7 @@ class CollabSetupInitiator {
                 name: client.name,
                 profilePic: client.profilePic,
                 location: client.location,
+                email: client.email,
               });
             });
             participantsCb(this.participants);
@@ -78,6 +81,7 @@ class CollabSetupInitiator {
                 clientName: this.clientName,
                 clientID: this.id,
                 profilePic: this.profilePicURL,
+                clentEmail: this.email,
                 location: this.clientLocation,
               })
             );
@@ -89,30 +93,42 @@ class CollabSetupInitiator {
           // When new client joins the server;
           case socketEvents.peerConnectionEvent: {
             let clientID = data.data.clientID;
-            this.participants.delete(clientID);
-            participantDisconnectCb(clientID);
+            this.participants.set(clientID, {
+              name: data.data.clientName,
+              profilePic: data.data.profilePic,
+              location: data.data.location,
+              email: data.data.email,
+            });
+            participantAddCb(clientID, {
+              name: data.data.clientName,
+              profilePic: data.data.profilePic,
+              location: data.data.location,
+              email: data.data.email,
+            });
+            break;
+          }
+
+          // When the socket server send the client info acknowledgement
+          case socketEvents.clientInfoAcknowledgement: {
+            this.id = data.data.id;
+            global.me = new PeerToPeerConnection(this.id);
             break;
           }
 
           // When client disconnects from our socket server
           case socketEvents.peerDisconnectEvent: {
             let clientID = data.data.clientID;
-            this.participants.set(clientID, {
-              name: data.data.clientName,
-              profilePic: data.data.profilePic,
-              location: data.data.location,
-            });
-            participantAddCb(clientID, {
-              name: data.data.clientName,
-              profilePic: data.data.profilePic,
-              location: data.data.location,
-            });
+            this.participants.delete(clientID);
+            participantDisconnectCb(clientID);
             break;
           }
 
           //When we recieve any chat message from a client
           case socketEvents.chatEvent: {
-            let chatData = data.data;
+            let chatData = {
+              clientID: data.data.id,
+              data: data.data.chatMessage,
+            };
             onChatMessageRecieved(chatData);
           }
 
@@ -122,7 +138,8 @@ class CollabSetupInitiator {
         }
       } catch (err) {
         console.log(
-          "Data non parseable as JSON... falling back it as a string message"
+          "Data non parseable as JSON... falling back it as a string message",
+          err.stack
         );
         console.log(data);
       }
@@ -130,7 +147,7 @@ class CollabSetupInitiator {
       /**
        * Message event ends here
        */
-    });
+    };
   };
 
   sendChat = (chatMessage) => {

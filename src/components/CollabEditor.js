@@ -52,46 +52,126 @@ class CollabEditor extends React.Component {
       host: {
         pic: person1Sm,
         name: "Rahul Prasad",
+        email: "rahul@uthaan.co.in",
         location: "Gurgaon, India",
         isOnline: true,
       },
       participants: new Map(),
+      chats: [],
+      me: {},
     };
   }
   componentDidMount = () => {
-    // this.collabSocket = new CollabSetupInitiator(
-    //   "localhost:3000",
-    //   "Akash Chatterjee",
-    //   "sddds",
-    //   "Durgapur, West Bengal"
-    // );
+    let meObj = {
+      name: prompt("Your Name"),
+      location: prompt("Your location"),
+      email: prompt("Your Email"),
+      profilePicURL: prompt("profilePicURL"),
+    };
 
+    this.setState({ me: meObj }, () => {
+      this.collabSocket = new CollabSetupInitiator(
+        "localhost:5050",
+        this.state.me.name,
+        this.state.me.profilePicURL,
+        this.state.me.location,
+        this.state.me.email
+      );
+
+      this.collabSocket.registerSocketCallbacks(
+        this.getParticipants,
+        this.addParticipant,
+        this.deleteParticipant,
+        this.addChat
+      );
+
+      let staticParticipants = new Map();
+      staticParticipants.set("asfasfa", {
+        pic: person2Sm,
+        name: "Kapil Patil",
+        location: "Gurgaon, India",
+        isOnline: false,
+      });
+
+      staticParticipants.set("dafaf", {
+        pic: person3Sm,
+        name: "Swati Sinha",
+        location: "Gurgaon, India",
+        isOnline: true,
+      });
+
+      staticParticipants.set("fqefqef", {
+        pic: person4Sm,
+        name: "Ankit Prasad",
+        isOnline: false,
+        location: "Gurgaon, India",
+      });
+
+      let dummyChats = [
+        {
+          profilePic: person1Sm,
+          sender: "Rahul Prasad",
+          message:
+            "Hello all, welcome to todays session in how to write code so that you caan learn and develop some new things based on that",
+          timeStamp: "11:20",
+        },
+        {
+          profilePic: person2Sm,
+          sender: "Kapil Patil",
+          message:
+            "Thanks Rahul, for the warm welcome. We too are excited to join in this session, let's start",
+          timeStamp: "11:22",
+        },
+      ];
+
+      this.setState({ participants: staticParticipants, chats: dummyChats });
+    });
+  };
+
+  getParticipants = (roomParticipants) => {
     let participants = new Map();
-    participants.set("asfasfa", {
-      pic: person2Sm,
-      name: "Kapil Patil",
-      location: "Gurgaon, India",
-      isOnline: false,
+    roomParticipants.forEach((participantData, participantId) => {
+      let participantInfo = {
+        pic: participantData.profilePic,
+        name: participantData.name,
+        isOnline: true,
+        location: participantData.location,
+      };
+      participants.set(participantId, participantInfo);
     });
-
-    participants.set("dafaf", {
-      pic: person3Sm,
-      name: "Swati Sinha",
-      location: "Gurgaon, India",
-      isOnline: true,
-    });
-
-    participants.set("fqefqef", {
-      pic: person4Sm,
-      name: "Ankit Prasad",
-      isOnline: false,
-      location: "Gurgaon, India",
-    });
-
     this.setState({ participants });
   };
 
-  getParticipants = (data) => {};
+  addParticipant = (clientId, clientData) => {
+    let participants = new Map(this.state.participants);
+    participants.set(clientId, {
+      pic: clientData.profilePic,
+      name: clientData.name,
+      isOnline: true,
+      location: clientData.location,
+    });
+    this.setState({ participants });
+  };
+
+  deleteParticipant = (clientId) => {
+    let participants = new Map(this.state.participants);
+    let participantData = participants.get(clientId);
+    participantData.isOnline = false;
+    participants.set(clientId, participantData);
+    this.setState({ participants });
+  };
+
+  addChat = (chatMessage) => {
+    let { clientId, dataMessage } = chatMessage;
+    let chats = [...this.state.chats];
+    chats.push({
+      profilePic: this.state.participants.get(clientId).pic,
+      sender: this.state.participants.get(clientId).name,
+      message: dataMessage,
+      timeStamp: new Date(Date.now()).toISOString().split("T")[0],
+    });
+    this.setState({ chats });
+  };
 
   render() {
     return (
@@ -211,7 +291,7 @@ class CollabEditor extends React.Component {
               }}
             >
               <InputOutputComponent />
-              <ChatComponent />
+              <ChatComponent chats={this.state.chats} />
             </Container>
           </Col>
         </Row>
