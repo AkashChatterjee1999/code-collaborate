@@ -50,9 +50,7 @@ class VideoCallsComponent extends React.Component {
       });
     });
 
-    this.setState({ currentBrowserStream }, () =>
-      this.callAnotherUser("46ba2dd0-0f3b-427c-80c8-b95fd297ba42")
-    );
+    this.setState({ currentBrowserStream });
   };
 
   callAnotherUser = (userId) => {

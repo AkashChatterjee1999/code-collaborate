@@ -2,6 +2,7 @@ import { Component } from "react";
 import { Container, Row, Col } from "reactstrap";
 import ParticipantComponent from "../components/ParticipantComponent";
 import { colorConfigs } from "../config/configs";
+import { isEqual } from "lodash";
 import {
   defaultTabHeight,
   defaultSubTabHeight,
@@ -11,7 +12,30 @@ import {
 class ParticipantsPanelComponent extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      participants: new Map(),
+      host: "",
+    };
   }
+
+  componentDidMount() {
+    let participants = new Map();
+    this.props.participants.forEach((participantData, participantId) => {
+      participants.set(participantId, participantData);
+    });
+    this.setState({ participants, host: this.props.host });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!isEqual(prevProps, this.props)) {
+      let participants = new Map();
+      this.props.participants.forEach((participantData, participantId) => {
+        participants.set(participantId, participantData);
+      });
+      this.setState({ participants, host: this.props.host });
+    }
+  }
+
   render() {
     return (
       <Container
@@ -57,10 +81,10 @@ class ParticipantsPanelComponent extends Component {
           >{`Host (1)`}</p>
         </div>
         <ParticipantComponent
-          isOnline={this.props.host.isOnline}
-          clientPic={this.props.host.pic}
-          name={this.props.host.name}
-          location={this.props.host.location}
+          isOnline={this.state.host.isOnline}
+          clientPic={this.state.host.pic}
+          name={this.state.host.name}
+          location={this.state.host.location}
         />
         <div
           className="d-flex px-3"
@@ -76,19 +100,23 @@ class ParticipantsPanelComponent extends Component {
               width: "fit-content",
               fontWeight: 400,
             }}
-          >{`Attendees (${this.props.participants.length})`}</p>
+          >{`Attendees (${
+            Array.from(this.state.participants.keys()).length
+          })`}</p>
         </div>
         <Container
           className="m-0 px-0 pb-4"
           style={{ overflowY: "scroll", height: "75vh" }}
         >
-          {this.props.participants.map((participant) => {
+          {Array.from(this.state.participants.keys()).map((key) => {
+            console.log(key, this.state.participants);
             return (
               <ParticipantComponent
-                isOnline={participant.isOnline}
-                clientPic={participant.pic}
-                name={participant.name}
-                location={participant.location}
+                key={key}
+                isOnline={this.state.participants.get(key).isOnline}
+                clientPic={this.state.participants.get(key).pic}
+                name={this.state.participants.get(key).name}
+                location={this.state.participants.get(key).location}
               />
             );
           })}

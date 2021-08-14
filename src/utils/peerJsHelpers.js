@@ -1,8 +1,8 @@
 import Peer from "peerjs";
 
 export default class PeerToPeerConnection {
-  constructor() {
-    this.peer = new Peer(undefined, {
+  constructor(id) {
+    this.peer = new Peer(id, {
       host: "/",
       port: "3002",
     });

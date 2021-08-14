@@ -5,6 +5,14 @@ export let colorConfigs = {
   tabSubHeaders: "#444648",
 };
 
+export let socketEvents = {
+  peerConnectionEvent: "CLIENT_CONNECTED",
+  peerDisconnectEvent: "CLIENT_DISCONNECTED",
+  openEvent: "OPEN",
+  chatEvent: "CHAT",
+  clientInfoEvent: "CLIENT_INFO",
+};
+
 export const defaultTabHeight = "30px";
 export const defaultSubTabHeight = "22px";
 export const rightSidebarTabHeights = "37vh";

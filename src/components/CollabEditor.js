@@ -29,6 +29,7 @@ import {
 } from "react-feather";
 import StatusHeaderDropdown from "../components/statusHeaderDropdown";
 import { colorConfigs } from "../config/configs";
+import CollabSetupInitiator from "../utils/helpers";
 import MainPanelComponent from "../components/MainPanelComponent";
 import ParticipantsPanelComponent from "./participantsPanelComponent";
 import person1Sm from "../assets/images/person1-about-us-sm.png";
@@ -37,7 +38,6 @@ import person3Sm from "../assets/images/person3-about-us-sm.png";
 import person4Sm from "../assets/images/person4-about-us-sm.png";
 import InputOutputComponent from "./inputOutputComponent";
 import ChatComponent from "./ChatComponent";
-import PeerToPeerConnection from "../utils/peerJsHelpers";
 import {
   defaultTabHeight,
   defaultSubTabHeight,
@@ -47,6 +47,7 @@ import {
 class CollabEditor extends React.Component {
   constructor(props) {
     super(props);
+    this.collabSocket = null;
     this.state = {
       host: {
         pic: person1Sm,
@@ -54,31 +55,44 @@ class CollabEditor extends React.Component {
         location: "Gurgaon, India",
         isOnline: true,
       },
-      participants: [
-        {
-          pic: person2Sm,
-          name: "Kapil Patil",
-          location: "Gurgaon, India",
-          isOnline: false,
-        },
-        {
-          pic: person3Sm,
-          name: "Swati Sinha",
-          location: "Gurgaon, India",
-          isOnline: true,
-        },
-        {
-          pic: person4Sm,
-          name: "Ankit Prasad",
-          isOnline: false,
-          location: "Gurgaon, India",
-        },
-      ],
+      participants: new Map(),
     };
   }
   componentDidMount = () => {
-    global.me = new PeerToPeerConnection();
+    // this.collabSocket = new CollabSetupInitiator(
+    //   "localhost:3000",
+    //   "Akash Chatterjee",
+    //   "sddds",
+    //   "Durgapur, West Bengal"
+    // );
+
+    let participants = new Map();
+    participants.set("asfasfa", {
+      pic: person2Sm,
+      name: "Kapil Patil",
+      location: "Gurgaon, India",
+      isOnline: false,
+    });
+
+    participants.set("dafaf", {
+      pic: person3Sm,
+      name: "Swati Sinha",
+      location: "Gurgaon, India",
+      isOnline: true,
+    });
+
+    participants.set("fqefqef", {
+      pic: person4Sm,
+      name: "Ankit Prasad",
+      isOnline: false,
+      location: "Gurgaon, India",
+    });
+
+    this.setState({ participants });
   };
+
+  getParticipants = (data) => {};
+
   render() {
     return (
       <Container
