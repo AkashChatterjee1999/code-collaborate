@@ -34,23 +34,26 @@ class VideoCallsComponent extends React.Component {
       this.state.videoRef[0].current.play();
     });
 
-    global.me.peer.on("call", (call) => {
-      let otherUsersVideoStream = document.createElement("video");
-      call.answer(currentBrowserStream);
-      call.on("stream", (stream) => {
-        otherUsersVideoStream.srcObject = stream;
-        otherUsersVideoStream.addEventListener("loadedmetadata", () => {
-          otherUsersVideoStream.play();
-        });
-
-        this.videostreamsListRef.current.appendChild(otherUsersVideoStream);
-      });
-      call.on("close", () => {
-        otherUsersVideoStream.remove();
-      });
-    });
+    global.me.peer.on("call", this.gettingCalled);
 
     this.setState({ currentBrowserStream });
+  };
+
+  gettingCalled = (call) => {
+    let otherUsersVideoStream = document.createElement("video");
+    call.answer(this.state.currentBrowserStream);
+    call.on("stream", (stream) => {
+      otherUsersVideoStream.srcObject = stream;
+      otherUsersVideoStream.addEventListener("loadedmetadata", () => {
+        otherUsersVideoStream.play();
+      });
+
+      this.videostreamsListRef.current.appendChild(otherUsersVideoStream);
+    });
+
+    call.on("close", () => {
+      otherUsersVideoStream.remove();
+    });
   };
 
   callAnotherUser = (userId) => {

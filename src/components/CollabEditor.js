@@ -84,47 +84,6 @@ class CollabEditor extends React.Component {
         this.deleteParticipant,
         this.addChat
       );
-
-      let staticParticipants = new Map();
-      staticParticipants.set("asfasfa", {
-        pic: person2Sm,
-        name: "Kapil Patil",
-        location: "Gurgaon, India",
-        isOnline: false,
-      });
-
-      staticParticipants.set("dafaf", {
-        pic: person3Sm,
-        name: "Swati Sinha",
-        location: "Gurgaon, India",
-        isOnline: true,
-      });
-
-      staticParticipants.set("fqefqef", {
-        pic: person4Sm,
-        name: "Ankit Prasad",
-        isOnline: false,
-        location: "Gurgaon, India",
-      });
-
-      let dummyChats = [
-        {
-          profilePic: person1Sm,
-          sender: "Rahul Prasad",
-          message:
-            "Hello all, welcome to todays session in how to write code so that you caan learn and develop some new things based on that",
-          timeStamp: "11:20",
-        },
-        {
-          profilePic: person2Sm,
-          sender: "Kapil Patil",
-          message:
-            "Thanks Rahul, for the warm welcome. We too are excited to join in this session, let's start",
-          timeStamp: "11:22",
-        },
-      ];
-
-      this.setState({ participants: staticParticipants, chats: dummyChats });
     });
   };
 
@@ -162,15 +121,21 @@ class CollabEditor extends React.Component {
   };
 
   addChat = (chatMessage) => {
-    let { clientId, dataMessage } = chatMessage;
-    let chats = [...this.state.chats];
+    let { clientID, data } = chatMessage;
+    let chats = [...this.state.chats],
+      curDtTimeObj = new Date(Date.now());
     chats.push({
-      profilePic: this.state.participants.get(clientId).pic,
-      sender: this.state.participants.get(clientId).name,
-      message: dataMessage,
-      timeStamp: new Date(Date.now()).toISOString().split("T")[0],
+      profilePic: this.state.participants.get(clientID).pic,
+      sender: this.state.participants.get(clientID).name,
+      message: data,
+      timeStamp: `${curDtTimeObj.getHours()}:${curDtTimeObj.getMinutes()}`,
     });
     this.setState({ chats });
+  };
+
+  sendChat = (chatMessage) => {
+    console.log("Sending chat: ", chatMessage);
+    this.collabSocket.sendChat(chatMessage);
   };
 
   render() {
@@ -291,7 +256,10 @@ class CollabEditor extends React.Component {
               }}
             >
               <InputOutputComponent />
-              <ChatComponent chats={this.state.chats} />
+              <ChatComponent
+                chats={this.state.chats}
+                sendChat={this.sendChat}
+              />
             </Container>
           </Col>
         </Row>

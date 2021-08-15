@@ -15,6 +15,7 @@ class ChatComponent extends React.Component {
     super(props);
     this.state = {
       chats: [],
+      msg: "",
     };
   }
 
@@ -23,12 +24,28 @@ class ChatComponent extends React.Component {
     this.setState({ chats });
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate = (prevProps) => {
     if (!isEqual(prevProps, this.props)) {
       let chats = [...this.props.chats];
       this.setState({ chats });
     }
-  }
+  };
+
+  chatMessageHandler = (e) => {
+    console.log(e.target.value);
+    this.setState({ msg: e.target.value });
+  };
+
+  chatHandler = (e) => {
+    this.props.sendChat(this.state.msg);
+    this.setState({ msg: "" });
+  };
+
+  chatHandleKeyDownChatBox = (e) => {
+    if (e.key === "Enter") {
+      this.chatHandler(e);
+    }
+  };
 
   render() {
     return (
@@ -68,24 +85,28 @@ class ChatComponent extends React.Component {
               overflow: "scroll",
             }}
           >
-            {this.state.chats.map((chat) => {
+            {this.state.chats.map((chat, index) => {
               return (
-                <Container className="m-0 p-0 d-flex">
+                <Container key={index} className="m-0 p-0 d-flex">
                   <div
-                    className="d-flex my-3"
+                    className="d-flex my-3 px-2"
                     style={{
                       width: "45px",
-                      height: "45px",
+                      height: "40px",
                       borderRadius: "45px",
                       overflow: "hidden",
+                      background: `url(${chat.profilePic})`,
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "center",
+                      backgroundSize: "cover",
                     }}
                   >
-                    <img
-                      src={chat.profilePic}
-                      alt="person"
+                    {/* <img
+                      src={}
+                      alt="person w-100 h-100"
                       style={{ height: "35px", width: "35px" }}
                       className="m-auto"
-                    />
+                    /> */}
                   </div>
                   <Container
                     className="my-3 mx-1 p-3"
@@ -123,6 +144,7 @@ class ChatComponent extends React.Component {
             <textarea
               placeholder="Send a Message"
               className="px-3 mb-2"
+              value={this.state.msg}
               style={{
                 width: "70%",
                 height: "100%",
@@ -134,6 +156,8 @@ class ChatComponent extends React.Component {
                 outlineColor: "transparent",
                 fontSize: "12px",
               }}
+              onKeyDown={this.chatHandleKeyDownChatBox}
+              onChange={this.chatMessageHandler}
             ></textarea>
             <Row
               className="m-auto"
@@ -146,7 +170,11 @@ class ChatComponent extends React.Component {
                 <Smile color="gray" size={ParticipantIconSize} />
               </div>
               <div className="px-0" style={{ width: "fit-content" }}>
-                <ArrowRight color="gray" size={ParticipantIconSize} />
+                <ArrowRight
+                  color="gray"
+                  size={ParticipantIconSize}
+                  onClick={this.chatHandler}
+                />
               </div>
             </Row>
           </Container>

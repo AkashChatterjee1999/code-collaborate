@@ -81,7 +81,7 @@ class CollabSetupInitiator {
                 clientName: this.clientName,
                 clientID: this.id,
                 profilePic: this.profilePicURL,
-                clentEmail: this.email,
+                clientEmail: this.email,
                 location: this.clientLocation,
               })
             );
@@ -110,6 +110,7 @@ class CollabSetupInitiator {
 
           // When the socket server send the client info acknowledgement
           case socketEvents.clientInfoAcknowledgement: {
+            console.log("Server acknowledgement for client_info event: ", data);
             this.id = data.data.id;
             global.me = new PeerToPeerConnection(this.id);
             break;
@@ -123,11 +124,11 @@ class CollabSetupInitiator {
             break;
           }
 
-          //When we recieve any chat message from a client
+          // When we recieve any chat message from a client
           case socketEvents.chatEvent: {
             let chatData = {
-              clientID: data.data.id,
-              data: data.data.chatMessage,
+              clientID: data.clientID,
+              data: data.data,
             };
             onChatMessageRecieved(chatData);
           }
