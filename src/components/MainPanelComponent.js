@@ -6,6 +6,7 @@ import {
   defaultSubTabHeight,
   rightSidebarTabHeights,
 } from "../config/configs";
+import { isEqual } from "lodash";
 import { Code, Grid, FileText } from "react-feather";
 import CodingComponent from "./CodingComponent";
 import VideoCallsComponent from "./VideoCallsComponent";
@@ -17,8 +18,21 @@ class MainPanelComponent extends React.Component {
     super(props);
     this.state = {
       selectedPanel: 2,
+      newParticipantID: null,
     };
   }
+
+  componentDidMount() {
+    this.setState({ newParticipantID: this.props.newParticipantID });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!isEqual(prevProps.newParticipantID, this.props.newParticipantID)) {
+      let newParticipantID = this.props.newParticipantID;
+      this.setState({ newParticipantID });
+    }
+  }
+
   render() {
     return (
       <Container
@@ -89,7 +103,7 @@ class MainPanelComponent extends React.Component {
         {this.state.selectedPanel === 1 ? (
           <CodingComponent />
         ) : this.state.selectedPanel === 2 ? (
-          <VideoCallsComponent />
+          <VideoCallsComponent newParticipantID={this.state.newParticipantID} />
         ) : (
           <DiscussionComponent />
         )}

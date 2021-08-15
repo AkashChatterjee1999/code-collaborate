@@ -7,6 +7,7 @@ import {
   rightSidebarTabHeights,
 } from "../config/configs";
 import "./styles/codingComponent.scss";
+import { isEqual } from "lodash";
 
 const MainSubPanelIconSize = "12px";
 const MainPanelContainerHeight = `calc( 100% - ( ${defaultTabHeight} + ${defaultSubTabHeight} ) )`;
@@ -21,6 +22,7 @@ class VideoCallsComponent extends React.Component {
       },
       currentVideoConstraint: { video: true, audio: true },
       currentBrowserStream: "",
+      newParticipantID: null,
     };
   }
 
@@ -36,31 +38,41 @@ class VideoCallsComponent extends React.Component {
 
     global.me.peer.on("call", this.gettingCalled);
 
-    this.setState({ currentBrowserStream });
+    this.setState({ currentBrowserStream }, () => {
+      if (this.props.newParticipantID !== null) {
+        this.setState({ newParticipantID: this.props.newParticipantID }, () => {
+          this.callAnotherUser(this.state.newParticipantID);
+        });
+      }
+    });
   };
 
-  gettingCalled = (call) => {
-    let otherUsersVideoStream = document.createElement("video");
-    call.answer(this.state.currentBrowserStream);
-    call.on("stream", (stream) => {
-      otherUsersVideoStream.srcObject = stream;
-      otherUsersVideoStream.addEventListener("loadedmetadata", () => {
-        otherUsersVideoStream.play();
+  componentDidUpdate = (prevProps) => {
+    if (!isEqual(prevProps.newParticipantID, this.props.newParticipantID)) {
+      let newParticipantID = this.props.newParticipantID;
+      this.setState({ newParticipantID }, () => {
+        this.callAnotherUser(this.state.newParticipantID);
       });
-
-      this.videostreamsListRef.current.appendChild(otherUsersVideoStream);
-    });
-
-    call.on("close", () => {
-      otherUsersVideoStream.remove();
-    });
+    }
   };
 
   callAnotherUser = (userId) => {
+    console.log("Am i calling?: ", userId);
     let anotherUserCallObj = global.me.peer.call(
       userId,
       this.state.currentBrowserStream
     );
+    console.log(anotherUserCallObj);
+    this.peerVideoStreamAdjuster(anotherUserCallObj);
+  };
+
+  gettingCalled = (call) => {
+    console.log("Am i getting a call?: ", call);
+    call.answer(this.state.currentBrowserStream);
+    this.peerVideoStreamAdjuster(call);
+  };
+
+  peerVideoStreamAdjuster = (callObj) => {
     let videoWrapperDOM = new DOMParser().parseFromString(
       `<div id="video-wrapper-div" class="col-md-4 px-1" style="height: 20vh;overflow: hidden;borderRadius: 20px;"></div>`,
       "text/html"
@@ -70,7 +82,7 @@ class VideoCallsComponent extends React.Component {
     otherUsersVideoStream.className += " h-100 w-100";
     otherUsersVideoStream.style = `borderRadius: 20px;`;
     videoWrapper.appendChild(otherUsersVideoStream);
-    anotherUserCallObj.on("stream", (stream) => {
+    callObj.on("stream", (stream) => {
       otherUsersVideoStream.srcObject = stream;
       otherUsersVideoStream.addEventListener("loadedmetadata", () => {
         otherUsersVideoStream.play();
@@ -78,7 +90,7 @@ class VideoCallsComponent extends React.Component {
       this.videostreamsListRef.current.appendChild(videoWrapper);
     });
 
-    anotherUserCallObj.on("close", () => {
+    callObj.on("close", () => {
       videoWrapper.remove();
     });
   };

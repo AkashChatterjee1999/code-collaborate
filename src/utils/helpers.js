@@ -17,7 +17,8 @@ class CollabSetupInitiator {
     participantsCb,
     participantAddCb,
     participantDisconnectCb,
-    onChatMessageRecieved
+    onChatMessageRecieved,
+    onOtherParticipantJoinedCb
   ) => {
     /**
      * Step1. Connect to my socket server
@@ -105,6 +106,11 @@ class CollabSetupInitiator {
               location: data.data.location,
               email: data.data.email,
             });
+            if (this.id !== clientID) {
+              //&& this.onOtherParticipantJoined
+              console.log("Tried to call man: ", clientID);
+              onOtherParticipantJoinedCb(clientID);
+            }
             break;
           }
 
@@ -165,13 +171,15 @@ class CollabSetupInitiator {
     participantsCb,
     participantAddCb,
     participantDisconnectCb,
-    onChatMessageRecieved
+    onChatMessageRecieved,
+    onOtherParticipantJoinedCb
   ) => {
     this.connectSocket(
       participantsCb,
       participantAddCb,
       participantDisconnectCb,
-      onChatMessageRecieved
+      onChatMessageRecieved,
+      onOtherParticipantJoinedCb
     );
   };
 }

@@ -58,6 +58,7 @@ class CollabEditor extends React.Component {
       },
       participants: new Map(),
       chats: [],
+      newParticipantID: null,
       me: {},
     };
   }
@@ -78,11 +79,14 @@ class CollabEditor extends React.Component {
         this.state.me.email
       );
 
+      global.myCollabSocket = this.collabSocket;
+
       this.collabSocket.registerSocketCallbacks(
         this.getParticipants,
         this.addParticipant,
         this.deleteParticipant,
-        this.addChat
+        this.addChat,
+        this.onOtherParticipantJoined
       );
     });
   };
@@ -131,6 +135,11 @@ class CollabEditor extends React.Component {
       timeStamp: `${curDtTimeObj.getHours()}:${curDtTimeObj.getMinutes()}`,
     });
     this.setState({ chats });
+  };
+
+  onOtherParticipantJoined = (id) => {
+    console.log("New Client Joinewd: ", id);
+    this.setState({ newParticipantID: id });
   };
 
   sendChat = (chatMessage) => {
@@ -242,7 +251,9 @@ class CollabEditor extends React.Component {
                 height: "100%",
               }}
             >
-              <MainPanelComponent />
+              <MainPanelComponent
+                newParticipantID={this.state.newParticipantID}
+              />
             </Container>
           </Col>
           <Col md={3} className="py-3" style={{ height: "87vh" }}>
