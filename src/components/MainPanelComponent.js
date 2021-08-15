@@ -18,18 +18,23 @@ class MainPanelComponent extends React.Component {
     super(props);
     this.state = {
       selectedPanel: 2,
-      newParticipantID: null,
+      participantIds: [],
     };
   }
 
-  componentDidMount() {
-    this.setState({ newParticipantID: this.props.newParticipantID });
-  }
+  /**
+   * Note: Simulatneous calls from both sides will be there when 2nd person joins the code-collaborate
+   * Though according to my tests the first call will probably fail since the reciever won't be available
+   * right then, hence the peerjs socket will be dead by then
+   */
 
   componentDidUpdate(prevProps) {
-    if (!isEqual(prevProps.newParticipantID, this.props.newParticipantID)) {
-      let newParticipantID = this.props.newParticipantID;
-      this.setState({ newParticipantID });
+    console.log("Participants situation: ", prevProps, this.props);
+    let newProps = this.props.participantIds;
+    console.log(newProps);
+    if (!isEqual(prevProps.participantIds, newProps)) {
+      let participantIds = [...newProps];
+      this.setState({ participantIds });
     }
   }
 
@@ -103,7 +108,7 @@ class MainPanelComponent extends React.Component {
         {this.state.selectedPanel === 1 ? (
           <CodingComponent />
         ) : this.state.selectedPanel === 2 ? (
-          <VideoCallsComponent newParticipantID={this.state.newParticipantID} />
+          <VideoCallsComponent participantIds={this.state.participantIds} />
         ) : (
           <DiscussionComponent />
         )}

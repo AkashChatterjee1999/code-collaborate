@@ -1,24 +1,13 @@
 import React from "react";
 import {
-  Collapse,
   Navbar,
-  NavbarToggler,
   NavbarBrand,
-  Nav,
-  NavItem,
-  NavLink,
-  CustomInput,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   NavbarText,
   Container,
   Row,
   Col,
 } from "reactstrap";
 import {
-  ArrowRight,
   Clock,
   Layout,
   Settings,
@@ -33,16 +22,8 @@ import CollabSetupInitiator from "../utils/helpers";
 import MainPanelComponent from "../components/MainPanelComponent";
 import ParticipantsPanelComponent from "./participantsPanelComponent";
 import person1Sm from "../assets/images/person1-about-us-sm.png";
-import person2Sm from "../assets/images/person2-about-us-sm.png";
-import person3Sm from "../assets/images/person3-about-us-sm.png";
-import person4Sm from "../assets/images/person4-about-us-sm.png";
 import InputOutputComponent from "./inputOutputComponent";
 import ChatComponent from "./ChatComponent";
-import {
-  defaultTabHeight,
-  defaultSubTabHeight,
-  rightSidebarTabHeights,
-} from "../config/configs";
 
 class CollabEditor extends React.Component {
   constructor(props) {
@@ -57,6 +38,7 @@ class CollabEditor extends React.Component {
         isOnline: true,
       },
       participants: new Map(),
+      callableParticipantsArray: [],
       chats: [],
       newParticipantID: null,
       me: {},
@@ -92,7 +74,8 @@ class CollabEditor extends React.Component {
   };
 
   getParticipants = (roomParticipants) => {
-    let participants = new Map();
+    let participants = new Map(),
+      callableParticipantsArray = [];
     roomParticipants.forEach((participantData, participantId) => {
       let participantInfo = {
         pic: participantData.profilePic,
@@ -101,8 +84,10 @@ class CollabEditor extends React.Component {
         location: participantData.location,
       };
       participants.set(participantId, participantInfo);
+      if (this.collabSocket.id !== participantId)
+        callableParticipantsArray.push(participantId);
     });
-    this.setState({ participants });
+    this.setState({ participants, callableParticipantsArray });
   };
 
   addParticipant = (clientId, clientData) => {
@@ -252,7 +237,7 @@ class CollabEditor extends React.Component {
               }}
             >
               <MainPanelComponent
-                newParticipantID={this.state.newParticipantID}
+                participantIds={this.state.callableParticipantsArray}
               />
             </Container>
           </Col>
