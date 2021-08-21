@@ -16,6 +16,7 @@ import {
   UserPlus,
   Users,
 } from "react-feather";
+import { connect } from "react-redux";
 import StatusHeaderDropdown from "../components/statusHeaderDropdown";
 import { colorConfigs } from "../config/configs";
 import CollabSetupInitiator from "../utils/helpers";
@@ -24,6 +25,32 @@ import ParticipantsPanelComponent from "./participantsPanelComponent";
 import person1Sm from "../assets/images/person1-about-us-sm.png";
 import InputOutputComponent from "./inputOutputComponent";
 import ChatComponent from "./ChatComponent";
+import {
+  addParticipant,
+  removeParticipant,
+  updatePrevParticipants,
+  updateToCallParticipants,
+} from "../redux/actions";
+
+const mapStateToProps = (props) => {
+  return {
+    participants: props.participantReducers,
+    callableParticipantsArray: props.toCallParticipants,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    addParticipant: (participantId, participantData) =>
+      dispatch(addParticipant(participantId, participantData)),
+    removeParticipant: (participantId) =>
+      dispatch(removeParticipant(participantId)),
+    updatePrevParticipants: (participants) =>
+      dispatch(updatePrevParticipants(participants)),
+    updateToCallParticipants: (toCallParticipants) =>
+      dispatch(updateToCallParticipants(toCallParticipants)),
+  };
+};
 
 class CollabEditor extends React.Component {
   constructor(props) {
@@ -37,10 +64,7 @@ class CollabEditor extends React.Component {
         location: "Gurgaon, India",
         isOnline: true,
       },
-      participants: new Map(),
-      callableParticipantsArray: [],
       chats: [],
-      newParticipantID: null,
       me: {},
     };
   }
@@ -67,8 +91,7 @@ class CollabEditor extends React.Component {
         this.getParticipants,
         this.addParticipant,
         this.deleteParticipant,
-        this.addChat,
-        this.onOtherParticipantJoined
+        this.addChat
       );
     });
   };
@@ -87,26 +110,22 @@ class CollabEditor extends React.Component {
       if (this.collabSocket.id !== participantId)
         callableParticipantsArray.push(participantId);
     });
-    this.setState({ participants, callableParticipantsArray });
+    this.props.updatePrevParticipants(participants);
+    this.props.updateToCallParticipants(callableParticipantsArray);
   };
 
   addParticipant = (clientId, clientData) => {
-    let participants = new Map(this.state.participants);
-    participants.set(clientId, {
+    let participantData = {
       pic: clientData.profilePic,
       name: clientData.name,
       isOnline: true,
       location: clientData.location,
-    });
-    this.setState({ participants });
+    };
+    this.props.addParticipant(clientId, participantData);
   };
 
   deleteParticipant = (clientId) => {
-    let participants = new Map(this.state.participants);
-    let participantData = participants.get(clientId);
-    participantData.isOnline = false;
-    participants.set(clientId, participantData);
-    this.setState({ participants });
+    this.props.removeParticipant(clientId);
   };
 
   addChat = (chatMessage) => {
@@ -120,11 +139,6 @@ class CollabEditor extends React.Component {
       timeStamp: `${curDtTimeObj.getHours()}:${curDtTimeObj.getMinutes()}`,
     });
     this.setState({ chats });
-  };
-
-  onOtherParticipantJoined = (id) => {
-    console.log("New Client Joinewd: ", id);
-    this.setState({ newParticipantID: id });
   };
 
   sendChat = (chatMessage) => {
@@ -223,7 +237,7 @@ class CollabEditor extends React.Component {
           >
             <ParticipantsPanelComponent
               host={this.state.host}
-              participants={this.state.participants}
+              participants={this.props.participants}
             />
           </Col>
           <Col md={6} className="py-3" style={{ height: "87vh" }}>
@@ -237,7 +251,7 @@ class CollabEditor extends React.Component {
               }}
             >
               <MainPanelComponent
-                participantIds={this.state.callableParticipantsArray}
+                participantIds={this.props.callableParticipantsArray}
               />
             </Container>
           </Col>
@@ -264,4 +278,4 @@ class CollabEditor extends React.Component {
   }
 }
 
-export default CollabEditor;
+export default connect(mapStateToProps, mapDispatchToProps)(CollabEditor);

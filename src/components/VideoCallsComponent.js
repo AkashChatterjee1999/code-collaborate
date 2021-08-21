@@ -7,10 +7,18 @@ import {
   rightSidebarTabHeights,
 } from "../config/configs";
 import "./styles/codingComponent.scss";
-import { isEqual, cloneDeep } from "lodash";
+import { cloneDeep } from "lodash";
+import { connect } from "react-redux";
 
 const MainSubPanelIconSize = "12px";
 const MainPanelContainerHeight = `calc( 100% - ( ${defaultTabHeight} + ${defaultSubTabHeight} ) )`;
+
+const mapStateToProps = (props) => {
+  return {
+    participants: props.participantReducers,
+    callableParticipantsArray: props.toCallParticipants,
+  };
+};
 
 class VideoCallsComponent extends React.Component {
   constructor(props) {
@@ -42,36 +50,16 @@ class VideoCallsComponent extends React.Component {
         );
 
         global.me.peer.on("call", this.gettingCalled);
+        global.me.peer.on("disconnected", function () {
+          global.me.peer.reconnect();
+        });
 
         this.setState({ currentBrowserStream }, () => {
           console.log("Got it");
-          if (
-            this.props.participantIds !== null &&
-            (this.props.participantIds.length > 0 ||
-              this.state.prevParticipants.length > 0) &&
-            !this.state.calledOthers
-          ) {
-            // Since here we are sure that browser stream is available to us.
-            if (this.state.prevParticipants > 0) {
-              // if component did update already set the state with prev participants
-              this.state.prevParticipants.forEach((participantId) => {
-                this.callAnotherUser(participantId);
-              });
-            } else if (this.state.prevParticipants.length > 0) {
-              // is component did mount executed faster than that then component did mount will update that ...
-              this.setState(
-                {
-                  calledOthers: true,
-                  prevParticipants: this.props.participantIds,
-                },
-                () => {
-                  console.log("Calling others ");
-                  this.state.prevParticipants.forEach((participantId) => {
-                    this.callAnotherUser(participantId);
-                  });
-                }
-              );
-            }
+          if (!this.state.calledOthers) {
+            this.props.callableParticipantsArray.forEach((participantId) => {
+              this.callAnotherUser(participantId);
+            });
           }
         });
       })
@@ -79,30 +67,6 @@ class VideoCallsComponent extends React.Component {
         console.log("Cannot get the browser Stream: ", err);
       });
   }
-
-  componentDidUpdate = (prevProps) => {
-    console.log("Curr State Update: ", prevProps, this.props);
-    if (
-      prevProps.participantIds.length > 0 &&
-      !this.state.calledOthers &&
-      this.state.prevParticipants.length === 0
-    ) {
-      if (this.state.currentBrowserStream !== "") {
-        this.setState(
-          { calledOthers: true, prevParticipants: this.props.participantIds },
-          () => {
-            console.log("Calling others ");
-            this.state.prevParticipants.forEach((participantId) => {
-              this.callAnotherUser(participantId);
-            });
-          }
-        );
-      } else if (this.state.prevParticipants.length === 0) {
-        // Since browser stream is not availabel yet hence only update the state
-        this.setState({ prevParticipants: this.props.participantIds });
-      }
-    }
-  };
 
   callAnotherUser = (userId) => {
     console.log("Am i calling?: ", userId, this.state.currentBrowserStream);
@@ -198,4 +162,4 @@ class VideoCallsComponent extends React.Component {
   }
 }
 
-export default VideoCallsComponent;
+export default connect(mapStateToProps)(VideoCallsComponent);

@@ -108,7 +108,7 @@ class MainPanelComponent extends React.Component {
         {this.state.selectedPanel === 1 ? (
           <CodingComponent />
         ) : this.state.selectedPanel === 2 ? (
-          <VideoCallsComponent participantIds={this.state.participantIds} />
+          <VideoCallsComponent />
         ) : (
           <DiscussionComponent />
         )}
