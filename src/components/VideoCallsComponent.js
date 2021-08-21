@@ -86,7 +86,7 @@ class VideoCallsComponent extends React.Component {
   gettingCalled = (call) => {
     console.log("Am i getting a call?: ", call);
     call.answer(this.state.currentBrowserStream);
-    this.peerVideoStreamAdjuster(call, "NOT-KNOWN");
+    this.peerVideoStreamAdjuster(call, call.peer);
   };
 
   peerVideoStreamAdjuster = (callObj, clientID) => {
@@ -99,9 +99,6 @@ class VideoCallsComponent extends React.Component {
     otherUsersVideoStream.className += " h-100 w-100";
     otherUsersVideoStream.style = `borderRadius: 20px;`;
     videoWrapper.appendChild(otherUsersVideoStream);
-    let videoRef = cloneDeep(this.state.videoRef);
-    videoRef[`${clientID}`] = videoWrapper;
-    this.setState({ videoRef });
     callObj.on(
       "stream",
       function (stream) {
@@ -109,12 +106,27 @@ class VideoCallsComponent extends React.Component {
         otherUsersVideoStream.addEventListener("loadedmetadata", () => {
           otherUsersVideoStream.play();
         });
+        let videoRef = cloneDeep(this.state.videoRef);
+        videoRef[`${clientID}`] = videoWrapper;
+        this.setState({ videoRef });
         this.videostreamsListRef.current.appendChild(videoWrapper);
       }.bind(this)
     );
   };
 
+  removeVideoStreamOnParticipantDisconnect = () => {
+    Array.from(this.props.participants.keys()).forEach((participantId) => {
+      if (
+        !this.props.participants.get(participantId).isOnline &&
+        this.state.videoRef[participantId]
+      ) {
+        this.state.videoRef[participantId].remove();
+      }
+    });
+  };
+
   render() {
+    this.removeVideoStreamOnParticipantDisconnect();
     return (
       <>
         <Row
