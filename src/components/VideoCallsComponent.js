@@ -60,6 +60,7 @@ class VideoCallsComponent extends React.Component {
         this.state.videoRef[0].current.addEventListener(
           "loadedmetadata",
           () => {
+            console.log("Loaded data video");
             this.state.videoRef[0].current.play();
           }
         );
@@ -104,15 +105,40 @@ class VideoCallsComponent extends React.Component {
   };
 
   peerVideoStreamAdjuster = (callObj, clientID) => {
-    let videoWrapperDOM = new DOMParser().parseFromString(
-      `<div id="video-wrapper-div" class="col-md-4 px-1" style="height: 20vh;overflow: hidden;borderRadius: 20px;"></div>`,
+    const videoWrapperDOM = new DOMParser().parseFromString(
+      `<div 
+          id="video-wrapper-div" 
+          class="col-md-4 px-1" 
+          style="height: 20vh; overflow: hidden; border-radius: 20px;"
+      >
+        <div
+          id="video-container"
+          style="height: 100%; overflow: hidden; border-radius: 20px; background-color: ${colorConfigs.tabHeaders};"
+        >
+          <div
+            id="video-overlay-client-profile-pic"
+            style="width: 7.5vh; height: 7.5vh; position: absolute; margin-top: calc(-0.8 * 20vh); margin-left: calc(0.16 * 33.33%); background-position: center; background-repeat: no-repeat; background-size: cover; border-radius: 7.5vh; overflow: hidden;"
+          >
+          </div>
+          <video id="client-stream" style="borderRadius: 20px;" class="h-100 w-100" />
+        </div>
+        <div
+          class="d-flex mr-auto"
+          style="max-width: max-content; margin-top: -30px; margin-left: 20px; position: absolute; z-index: 2;"
+        >
+          <p 
+            id="video-overlay-text" 
+            class="my-auto" 
+            style="font-size: 11px;"
+          >
+          </p>
+        </div> 
+      </div>`,
       "text/html"
     );
     let videoWrapper = videoWrapperDOM.getElementById("video-wrapper-div");
-    let otherUsersVideoStream = document.createElement("video");
-    otherUsersVideoStream.className += " h-100 w-100";
-    otherUsersVideoStream.style = `borderRadius: 20px;`;
-    videoWrapper.appendChild(otherUsersVideoStream);
+    let otherUsersVideoStream = videoWrapperDOM.getElementById("client-stream");
+
     callObj.on(
       "stream",
       function (stream) {
@@ -120,15 +146,33 @@ class VideoCallsComponent extends React.Component {
         otherUsersVideoStream.addEventListener("loadedmetadata", () => {
           otherUsersVideoStream.play();
         });
+
+        let videoOverlayProfilePic = videoWrapperDOM.getElementById(
+            "video-overlay-client-profile-pic"
+          ),
+          videoOverlayClientText =
+            videoWrapperDOM.getElementById("video-overlay-text");
         let videoRef = cloneDeep(this.state.videoRef);
-        videoRef[`${clientID}`] = videoWrapper;
+
+        videoRef[`${clientID}`] = otherUsersVideoStream;
+
+        if (videoOverlayProfilePic)
+          videoOverlayProfilePic.style += `background-image: url("${
+            this.props.participants.get(clientID)?.pic
+          }")`;
+
+        if (videoOverlayClientText)
+          videoOverlayClientText.innerHTML = `${
+            this.props.participants.get(clientID)?.name
+          }`;
+
         this.setState({ videoRef });
         this.videostreamsListRef.current.appendChild(videoWrapper);
       }.bind(this)
     );
   };
 
-  removeVideoStreamOnParticipantDisconnect = () => {
+  performVideoCallsStateChangeOnGlobalEvents = () => {
     console.log("Particpants current situation: ", this.props.participants);
     Array.from(this.props.participants.keys()).forEach((participantId) => {
       if (
@@ -136,12 +180,19 @@ class VideoCallsComponent extends React.Component {
         this.state.videoRef[participantId]
       ) {
         this.state.videoRef[participantId].remove();
+      } else if (this.state.videoRef[participantId]) {
+        this.state.videoRef[participantId].style.opacity =
+          this.props.participants.get(participantId)?.streamConstraints?.video
+            ? 1
+            : 0;
+        this.state.videoRef[participantId].muted =
+          this.props.participants.get(participantId)?.streamConstraints?.audio;
       }
     });
   };
 
   render() {
-    this.removeVideoStreamOnParticipantDisconnect();
+    this.performVideoCallsStateChangeOnGlobalEvents();
     return (
       <>
         <Row
@@ -244,7 +295,10 @@ class VideoCallsComponent extends React.Component {
                 <video
                   ref={this.state.videoRef[0]}
                   className="w-100 h-100"
-                  style={{ borderRadius: "20px", opacity: 0 }}
+                  style={{
+                    borderRadius: "20px",
+                    opacity: this.props.currentStreamConstraints?.video ? 1 : 0,
+                  }}
                   muted
                 />
                 <div
@@ -254,7 +308,7 @@ class VideoCallsComponent extends React.Component {
                     position: "absolute",
                     marginTop: "calc(-0.8 * 20vh)",
                     marginLeft: "calc(0.16 * 33.33%)",
-                    background: `url("${global.aboutMe.profilePicURL}")`,
+                    background: `url("${global.aboutMe?.profilePicURL}")`,
                     backgroundPosition: "center",
                     backgroundRepeat: "no-repeat",
                     backgroundSize: "cover",
@@ -274,7 +328,7 @@ class VideoCallsComponent extends React.Component {
                 }}
               >
                 <p className="my-auto" style={{ fontSize: "11px" }}>
-                  {global.aboutMe.name}
+                  {global.aboutMe?.name}
                 </p>
               </div>
             </Col>
