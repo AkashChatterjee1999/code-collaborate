@@ -75,6 +75,7 @@ class VideoCallsComponent extends React.Component {
               this.callAnotherUser(participantId);
             });
           }
+          this.setState({ calledOthers: true });
         });
       })
       .catch((err) => {
@@ -104,26 +105,20 @@ class VideoCallsComponent extends React.Component {
   };
 
   peerVideoStreamAdjuster = (callObj, clientID) => {
-    let videoWrapperDOM = new DOMParser().parseFromString(
-      `<div id="video-wrapper-div" class="col-md-4 px-1" style="height: 20vh;overflow: hidden;borderRadius: 20px;"></div>`,
-      "text/html"
-    );
-    let videoWrapper = videoWrapperDOM.getElementById("video-wrapper-div");
-    let otherUsersVideoStream = document.createElement("video");
-    otherUsersVideoStream.className += " h-100 w-100";
-    otherUsersVideoStream.style = `borderRadius: 20px;`;
-    videoWrapper.appendChild(otherUsersVideoStream);
     callObj.on(
       "stream",
       function (stream) {
-        otherUsersVideoStream.srcObject = stream;
-        otherUsersVideoStream.addEventListener("loadedmetadata", () => {
-          otherUsersVideoStream.play();
-        });
         let videoRef = cloneDeep(this.state.videoRef);
-        videoRef[`${clientID}`] = videoWrapper;
-        this.setState({ videoRef });
-        this.videostreamsListRef.current.appendChild(videoWrapper);
+        videoRef[`${clientID}`] = stream;
+        this.setState({ videoRef }, () => {
+          //   this.state.videoRef[clientID].current.srcObject = stream;
+          //   this.state.videoRef[clientID].current.addEventListener(
+          //     "loadedmetadata",
+          //     () => {
+          //       this.state.videoRef[clientID].current.play();
+          //     }
+          //   );
+        });
       }.bind(this)
     );
   };
@@ -135,13 +130,13 @@ class VideoCallsComponent extends React.Component {
         !this.props.participants.get(participantId).isOnline &&
         this.state.videoRef[participantId]
       ) {
-        this.state.videoRef[participantId].remove();
+        this.state.videoRef[participantId].current.remove();
       }
     });
   };
 
   render() {
-    this.removeVideoStreamOnParticipantDisconnect();
+    //this.removeVideoStreamOnParticipantDisconnect();
     return (
       <>
         <Row
@@ -162,8 +157,8 @@ class VideoCallsComponent extends React.Component {
               style={{ width: "fit-content", cursor: "pointer" }}
               onClick={(e) =>
                 this.props.updateStreamConstraints({
-                  video: !this.props.currentStreamConstraints.video,
-                  audio: this.props.currentStreamConstraints.audio,
+                  video: !this.props.currentStreamConstraints?.video,
+                  audio: this.props.currentStreamConstraints?.audio,
                 })
               }
             >
@@ -188,12 +183,12 @@ class VideoCallsComponent extends React.Component {
               style={{ width: "fit-content", cursor: "pointer" }}
               onClick={(e) =>
                 this.props.updateStreamConstraints({
-                  video: this.props.currentStreamConstraints.video,
-                  audio: !this.props.currentStreamConstraints.audio,
+                  video: this.props.currentStreamConstraints?.video,
+                  audio: !this.props.currentStreamConstraints?.audio,
                 })
               }
             >
-              {this.props.currentStreamConstraints.audio ? (
+              {this.props.currentStreamConstraints?.audio ? (
                 <MicOff
                   strokeWidth={"2px"}
                   color="white"
@@ -244,7 +239,10 @@ class VideoCallsComponent extends React.Component {
                 <video
                   ref={this.state.videoRef[0]}
                   className="w-100 h-100"
-                  style={{ borderRadius: "20px", opacity: 0 }}
+                  style={{
+                    borderRadius: "20px",
+                    opacity: this.props.currentStreamConstraints.video ? 1 : 0,
+                  }}
                   muted
                 />
                 <div
@@ -254,7 +252,7 @@ class VideoCallsComponent extends React.Component {
                     position: "absolute",
                     marginTop: "calc(-0.8 * 20vh)",
                     marginLeft: "calc(0.16 * 33.33%)",
-                    background: `url("${global.aboutMe.profilePicURL}")`,
+                    background: `url("${global.aboutMe?.pic}")`,
                     backgroundPosition: "center",
                     backgroundRepeat: "no-repeat",
                     backgroundSize: "cover",
@@ -274,10 +272,76 @@ class VideoCallsComponent extends React.Component {
                 }}
               >
                 <p className="my-auto" style={{ fontSize: "11px" }}>
-                  {global.aboutMe.name}
+                  {global.aboutMe?.name}
                 </p>
               </div>
             </Col>
+            {Object.keys(this.state.videoRef).map((clientID) => {
+              if (clientID !== 0)
+                return (
+                  <Col
+                    md={4}
+                    className="px-1"
+                    style={{
+                      height: "20vh",
+                      overflow: "hidden",
+                      borderRadius: "20px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: "100%",
+                        overflow: "hidden",
+                        borderRadius: "20px",
+                        backgroundColor: colorConfigs.tabHeaders,
+                      }}
+                    >
+                      <VideoCallsComponent
+                        srcObject={this.state.videoRef[clientID]}
+                        toShow={
+                          this.props.participants.get(clientID)
+                            ?.streamConstraints?.video
+                        }
+                        muted={
+                          !this.props.participants.get(clientID)
+                            ?.streamConstraints?.audio
+                        }
+                      />
+                      <div
+                        style={{
+                          width: "7.5vh",
+                          height: "7.5vh",
+                          position: "absolute",
+                          marginTop: "calc(-0.8 * 20vh)",
+                          marginLeft: "calc(0.16 * 33.33%)",
+                          background: `url("${
+                            this.props.participants.get(clientID)?.pic
+                          }")`,
+                          backgroundPosition: "center",
+                          backgroundRepeat: "no-repeat",
+                          backgroundSize: "cover",
+                          borderRadius: "7.5vh",
+                          overflow: "hidden",
+                        }}
+                      ></div>
+                    </div>
+                    <div
+                      className="d-flex mr-auto"
+                      style={{
+                        maxWidth: "max-content",
+                        marginTop: "-30px",
+                        marginLeft: "20px",
+                        position: "absolute",
+                        zIndex: 2,
+                      }}
+                    >
+                      <p className="my-auto" style={{ fontSize: "11px" }}>
+                        {this.props.participants.get(clientID)?.name}
+                      </p>
+                    </div>
+                  </Col>
+                );
+            })}
           </div>
         </Container>
       </>
