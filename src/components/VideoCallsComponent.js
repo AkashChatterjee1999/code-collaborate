@@ -9,7 +9,13 @@ import {
 import "./styles/codingComponent.scss";
 import { cloneDeep } from "lodash";
 import { connect } from "react-redux";
+import { VideoOff, Video, Mic, MicOff } from "react-feather";
+import {
+  updatePeerStreamConstraints,
+  updateStreamConstraints,
+} from "../redux/actions";
 
+const MainPanelIconSize = "16px";
 const MainSubPanelIconSize = "12px";
 const MainPanelContainerHeight = `calc( 100% - ( ${defaultTabHeight} + ${defaultSubTabHeight} ) )`;
 
@@ -17,6 +23,16 @@ const mapStateToProps = (props) => {
   return {
     participants: props.participantReducers,
     callableParticipantsArray: props.toCallParticipants,
+    currentStreamConstraints: props.changeVideoStreamConstraints,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updatePeerStreamConstraints: (constraintsData) =>
+      dispatch(updatePeerStreamConstraints(constraintsData)),
+    updateStreamConstraints: (constraintsData) =>
+      dispatch(updateStreamConstraints(constraintsData)),
   };
 };
 
@@ -28,7 +44,6 @@ class VideoCallsComponent extends React.Component {
       videoRef: {
         0: React.createRef(),
       },
-      currentVideoConstraint: { video: true, audio: true },
       currentBrowserStream: "",
       calledOthers: false,
       prevParticipants: [],
@@ -37,7 +52,7 @@ class VideoCallsComponent extends React.Component {
 
   componentDidMount() {
     navigator.mediaDevices
-      .getUserMedia(this.state.currentVideoConstraint)
+      .getUserMedia(this.props.currentStreamConstraints)
       .then((currentBrowserStream) => {
         console.log("Current Browwsestream: ", currentBrowserStream);
         this.state.videoRef[0].current.srcObject = currentBrowserStream;
@@ -55,7 +70,6 @@ class VideoCallsComponent extends React.Component {
         });
 
         this.setState({ currentBrowserStream }, () => {
-          console.log("Got it");
           if (!this.state.calledOthers) {
             this.props.callableParticipantsArray.forEach((participantId) => {
               this.callAnotherUser(participantId);
@@ -115,6 +129,7 @@ class VideoCallsComponent extends React.Component {
   };
 
   removeVideoStreamOnParticipantDisconnect = () => {
+    console.log("Particpants current situation: ", this.props.participants);
     Array.from(this.props.participants.keys()).forEach((participantId) => {
       if (
         !this.props.participants.get(participantId).isOnline &&
@@ -137,7 +152,65 @@ class VideoCallsComponent extends React.Component {
             width: "100%",
             backgroundColor: colorConfigs.tabSubHeaders,
           }}
-        ></Row>
+        >
+          <Row
+            className="d-flex justify-content-between"
+            style={{ maxWidth: "60px" }}
+          >
+            <div
+              className="px-0"
+              style={{ width: "fit-content", cursor: "pointer" }}
+              onClick={(e) =>
+                this.props.updateStreamConstraints({
+                  video: !this.props.currentStreamConstraints.video,
+                  audio: this.props.currentStreamConstraints.audio,
+                })
+              }
+            >
+              {this.props.currentStreamConstraints.video ? (
+                <VideoOff
+                  strokeWidth={"2px"}
+                  color="white"
+                  style={{ width: "fit-content" }}
+                  size={MainSubPanelIconSize}
+                />
+              ) : (
+                <Video
+                  strokeWidth={"2px"}
+                  color="white"
+                  style={{ width: "fit-content" }}
+                  size={MainSubPanelIconSize}
+                />
+              )}
+            </div>
+            <div
+              className="px-0"
+              style={{ width: "fit-content", cursor: "pointer" }}
+              onClick={(e) =>
+                this.props.updateStreamConstraints({
+                  video: this.props.currentStreamConstraints.video,
+                  audio: !this.props.currentStreamConstraints.audio,
+                })
+              }
+            >
+              {this.props.currentStreamConstraints.audio ? (
+                <MicOff
+                  strokeWidth={"2px"}
+                  color="white"
+                  style={{ width: "fit-content" }}
+                  size={MainSubPanelIconSize}
+                />
+              ) : (
+                <Mic
+                  strokeWidth={"2px"}
+                  color="white"
+                  style={{ width: "fit-content" }}
+                  size={MainSubPanelIconSize}
+                />
+              )}
+            </div>
+          </Row>
+        </Row>
         <Container
           className="py-3"
           style={{
@@ -160,12 +233,50 @@ class VideoCallsComponent extends React.Component {
                 borderRadius: "20px",
               }}
             >
-              <video
-                ref={this.state.videoRef[0]}
-                className="h-100 w-100"
-                style={{ borderRadius: "20px" }}
-                muted
-              />
+              <div
+                style={{
+                  height: "100%",
+                  overflow: "hidden",
+                  borderRadius: "20px",
+                  backgroundColor: colorConfigs.tabHeaders,
+                }}
+              >
+                <video
+                  ref={this.state.videoRef[0]}
+                  className="w-100 h-100"
+                  style={{ borderRadius: "20px", opacity: 0 }}
+                  muted
+                />
+                <div
+                  style={{
+                    width: "7.5vh",
+                    height: "7.5vh",
+                    position: "absolute",
+                    marginTop: "calc(-0.8 * 20vh)",
+                    marginLeft: "calc(0.16 * 33.33%)",
+                    background: `url("${global.aboutMe.profilePicURL}")`,
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                    backgroundSize: "cover",
+                    borderRadius: "7.5vh",
+                    overflow: "hidden",
+                  }}
+                ></div>
+              </div>
+              <div
+                className="d-flex mr-auto"
+                style={{
+                  maxWidth: "max-content",
+                  marginTop: "-30px",
+                  marginLeft: "20px",
+                  position: "absolute",
+                  zIndex: 2,
+                }}
+              >
+                <p className="my-auto" style={{ fontSize: "11px" }}>
+                  {global.aboutMe.name}
+                </p>
+              </div>
             </Col>
           </div>
         </Container>
@@ -174,4 +285,7 @@ class VideoCallsComponent extends React.Component {
   }
 }
 
-export default connect(mapStateToProps)(VideoCallsComponent);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(VideoCallsComponent);

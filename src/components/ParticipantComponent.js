@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Row, Col } from "reactstrap";
 import { colorConfigs } from "../config/configs";
-import { Mic, Video, Info } from "react-feather";
+import { Mic, Video, Info, MicOff, VideoOff } from "react-feather";
 const ParticipantIconSize = "16px";
 const onlineColor = "#56e352";
 const offlineColor = "#d95356";
@@ -62,10 +62,20 @@ class ParticipantComponent extends React.Component {
             style={{ width: "100px", justifyContent: "space-evenly" }}
           >
             <div className="px-0" style={{ width: "fit-content" }}>
-              <Mic color="gray" size={ParticipantIconSize} />
+              {this.props.streamConstraints &&
+              this.props.streamConstraints.audio ? (
+                <Mic color="white" size={ParticipantIconSize} />
+              ) : (
+                <MicOff color="gray" size={ParticipantIconSize} />
+              )}
             </div>
             <div className="px-0" style={{ width: "fit-content" }}>
-              <Video color="gray" size={ParticipantIconSize} />
+              {this.props.streamConstraints &&
+              this.props.streamConstraints.video ? (
+                <Video color="white" size={ParticipantIconSize} />
+              ) : (
+                <VideoOff color="gray" size={ParticipantIconSize} />
+              )}
             </div>
             <div className="px-0" style={{ width: "fit-content" }}>
               <Info color="gray" size={ParticipantIconSize} />

@@ -118,6 +118,9 @@ class ParticipantsPanelComponent extends Component {
                 clientPic={this.state.participants.get(key).pic}
                 name={this.state.participants.get(key).name}
                 location={this.state.participants.get(key).location}
+                streamConstraints={
+                  this.state.participants.get(key).streamConstraints
+                }
               />
             );
           })}

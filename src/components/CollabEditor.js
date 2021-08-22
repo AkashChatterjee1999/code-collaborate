@@ -17,6 +17,7 @@ import {
   Users,
 } from "react-feather";
 import { connect } from "react-redux";
+import { isEqual } from "lodash";
 import StatusHeaderDropdown from "../components/statusHeaderDropdown";
 import { colorConfigs } from "../config/configs";
 import CollabSetupInitiator from "../utils/helpers";
@@ -30,12 +31,15 @@ import {
   removeParticipant,
   updatePrevParticipants,
   updateToCallParticipants,
+  updatePeerStreamConstraints,
+  updateStreamConstraints,
 } from "../redux/actions";
 
 const mapStateToProps = (props) => {
   return {
     participants: props.participantReducers,
     callableParticipantsArray: props.toCallParticipants,
+    videoStreamConstraints: props.changeVideoStreamConstraints,
   };
 };
 
@@ -49,6 +53,8 @@ const mapDispatchToProps = (dispatch) => {
       dispatch(updatePrevParticipants(participants)),
     updateToCallParticipants: (toCallParticipants) =>
       dispatch(updateToCallParticipants(toCallParticipants)),
+    updatePeerStreamConstraints: (participantId, constraintsData) =>
+      dispatch(updatePeerStreamConstraints(participantId, constraintsData)),
   };
 };
 
@@ -67,6 +73,10 @@ class CollabEditor extends React.Component {
       chats: [],
       me: {},
     };
+    this.streamConstraints = {
+      video: true,
+      audio: true,
+    };
   }
   componentDidMount = () => {
     let meObj = {
@@ -76,6 +86,7 @@ class CollabEditor extends React.Component {
       profilePicURL: prompt("profilePicURL"),
     };
 
+    global.aboutMe = meObj;
     this.setState({ me: meObj }, () => {
       this.collabSocket = new CollabSetupInitiator(
         "localhost:5050",
@@ -91,7 +102,8 @@ class CollabEditor extends React.Component {
         this.getParticipants,
         this.addParticipant,
         this.deleteParticipant,
-        this.addChat
+        this.addChat,
+        this.onParticipantStreamConstraintChange
       );
     });
   };
@@ -105,6 +117,7 @@ class CollabEditor extends React.Component {
         name: participantData.name,
         isOnline: true,
         location: participantData.location,
+        streamConstraints: participantData.streamConstraints,
       };
       participants.set(participantId, participantInfo);
       if (this.collabSocket.id !== participantId)
@@ -120,12 +133,35 @@ class CollabEditor extends React.Component {
       name: clientData.name,
       isOnline: true,
       location: clientData.location,
+      streamConstraints: clientData.streamConstraints,
     };
     this.props.addParticipant(clientId, participantData);
   };
 
   deleteParticipant = (clientId) => {
     this.props.removeParticipant(clientId);
+  };
+
+  onParticipantStreamConstraintChange = (clientConstraintData) => {
+    let clientID = clientConstraintData.clientID;
+    let constraintsData = {
+      video: clientConstraintData.video,
+      audio: clientConstraintData.audio,
+    };
+    console.log(clientID, constraintsData);
+    this.props.updatePeerStreamConstraints(clientID, constraintsData);
+  };
+
+  globalStateChangeSubscriber = () => {
+    // Sense the change of client's stream constraints
+    if (!isEqual(this.props.videoStreamConstraints, this.streamConstraints)) {
+      this.collabSocket.changeStreamState(
+        this.props.videoStreamConstraints.video,
+        this.props.videoStreamConstraints.audio
+      );
+      this.streamConstraints = this.props.videoStreamConstraints;
+    }
+    // Sense all the global state changes here ...
   };
 
   addChat = (chatMessage) => {
@@ -147,6 +183,7 @@ class CollabEditor extends React.Component {
   };
 
   render() {
+    this.globalStateChangeSubscriber();
     return (
       <Container
         className="p-0"

@@ -28,15 +28,15 @@ class MainPanelComponent extends React.Component {
    * right then, hence the peerjs socket will be dead by then
    */
 
-  componentDidUpdate(prevProps) {
-    console.log("Participants situation: ", prevProps, this.props);
-    let newProps = this.props.participantIds;
-    console.log(newProps);
-    if (!isEqual(prevProps.participantIds, newProps)) {
-      let participantIds = [...newProps];
-      this.setState({ participantIds });
-    }
-  }
+  // componentDidUpdate(prevProps) {
+  //   console.log("Participants situation: ", prevProps, this.props);
+  //   let newProps = this.props.participantIds;
+  //   console.log(newProps);
+  //   if (!isEqual(prevProps.participantIds, newProps)) {
+  //     let participantIds = [...newProps];
+  //     this.setState({ participantIds });
+  //   }
+  // }
 
   render() {
     return (
@@ -107,11 +107,12 @@ class MainPanelComponent extends React.Component {
         </div>
         {this.state.selectedPanel === 1 ? (
           <CodingComponent />
-        ) : this.state.selectedPanel === 2 ? (
-          <VideoCallsComponent />
-        ) : (
+        ) : this.state.selectedPanel === 3 ? (
           <DiscussionComponent />
-        )}
+        ) : null}
+        <VideoCallsComponent
+          className={this.state.selectedPanel === 2 ? "" : "d-none"}
+        />
       </Container>
     );
   }

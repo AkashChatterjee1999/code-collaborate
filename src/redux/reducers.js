@@ -16,6 +16,17 @@ const participantReducers = (state = new Map(), action) => {
       return action.participants;
     }
 
+    case "UPDATE_PEER_STREAM_CONSTRAINT_CHANGE": {
+      let intermediateState = new Map(state);
+      let pData = intermediateState.get(action.participantId);
+      pData.streamConstraints = {
+        video: action.peerStreamConstraintData.video,
+        audio: action.peerStreamConstraintData.audio,
+      };
+      intermediateState.set(action.participantId, pData);
+      return intermediateState;
+    }
+
     case "REMOVE_PARTICIPANT": {
       let intermediateState = new Map(state);
       let pData = intermediateState.get(action.participantId);
@@ -42,7 +53,25 @@ const toCallParticipants = (state = [], action) => {
   }
 };
 
+const changeVideoStreamConstraints = (
+  state = { video: true, audio: true },
+  action
+) => {
+  switch (action.type) {
+    case "UPDATE_STREAM_CONSTRAINTS": {
+      return {
+        video: action.streamConstraints.video,
+        audio: action.streamConstraints.audio,
+      };
+    }
+
+    default:
+      return state;
+  }
+};
+
 export default combineReducers({
   participantReducers,
   toCallParticipants,
+  changeVideoStreamConstraints,
 });

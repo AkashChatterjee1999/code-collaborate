@@ -17,7 +17,8 @@ class CollabSetupInitiator {
     participantsCb,
     participantAddCb,
     participantDisconnectCb,
-    onChatMessageRecieved
+    onChatMessageRecieved,
+    onParticipantStreamConstraintChangeCb
   ) => {
     /**
      * Step1. Connect to my socket server
@@ -65,6 +66,7 @@ class CollabSetupInitiator {
                 profilePic: client.profilePic,
                 location: client.location,
                 email: client.email,
+                streamConstraints: client.streamConstraints,
               });
             });
             participantsCb(this.participants);
@@ -98,12 +100,14 @@ class CollabSetupInitiator {
               profilePic: data.data.profilePic,
               location: data.data.location,
               email: data.data.email,
+              streamConstraints: data.data.streamConstraints,
             });
             participantAddCb(clientID, {
               name: data.data.clientName,
               profilePic: data.data.profilePic,
               location: data.data.location,
               email: data.data.email,
+              streamConstraints: data.data.streamConstraints,
             });
             if (this.id !== clientID) {
               //&& this.onOtherParticipantJoined
@@ -138,6 +142,18 @@ class CollabSetupInitiator {
             onChatMessageRecieved(chatData);
           }
 
+          case socketEvents.clientStreamStateChange: {
+            let clientData = this.participants.get(data.clientID);
+            clientData.streamConstraints = data.constraints;
+            this.participants.set(data.clientID, clientData);
+            let streamStateChangeData = {
+              clientID: data.clientID,
+              video: data.constraints.video,
+              audio: data.constraints.audio,
+            };
+            onParticipantStreamConstraintChangeCb(streamStateChangeData);
+          }
+
           /**
            * Socket event switcher ends here
            */
@@ -166,17 +182,32 @@ class CollabSetupInitiator {
     );
   };
 
+  changeStreamState = (video, audio) => {
+    this.socketPointer.send(
+      JSON.stringify({
+        responseEvent: socketEvents.clientStreamStateChange,
+        clientID: this.id,
+        constraints: {
+          video,
+          audio,
+        },
+      })
+    );
+  };
+
   registerSocketCallbacks = (
     participantsCb,
     participantAddCb,
     participantDisconnectCb,
-    onChatMessageRecieved
+    onChatMessageRecieved,
+    onParticipantStreamConstraintChangeCb
   ) => {
     this.connectSocket(
       participantsCb,
       participantAddCb,
       participantDisconnectCb,
-      onChatMessageRecieved
+      onChatMessageRecieved,
+      onParticipantStreamConstraintChangeCb
     );
   };
 }

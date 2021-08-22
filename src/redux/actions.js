@@ -26,3 +26,21 @@ export const updateToCallParticipants = (toCallParticipants) => {
     toCallParticipants,
   };
 };
+
+export const updatePeerStreamConstraints = (
+  participantId,
+  peerStreamConstraintData
+) => {
+  return {
+    type: "UPDATE_PEER_STREAM_CONSTRAINT_CHANGE",
+    participantId,
+    peerStreamConstraintData,
+  };
+};
+
+export const updateStreamConstraints = (streamConstraints) => {
+  return {
+    type: "UPDATE_STREAM_CONSTRAINTS",
+    streamConstraints,
+  };
+};

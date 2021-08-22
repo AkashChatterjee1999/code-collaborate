@@ -12,6 +12,7 @@ export let socketEvents = {
   chatEvent: "CHAT",
   clientInfoAcknowledgement: "ACKNOWLEDGE_CLIENT_INFO",
   clientInfoEvent: "CLIENT_INFO",
+  clientStreamStateChange: "STREAM_STATE_CHANGE",
 };
 
 export const defaultTabHeight = "30px";
