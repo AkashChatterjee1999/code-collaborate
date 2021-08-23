@@ -106,18 +106,22 @@ class VideoCallsComponent extends React.Component {
 
   peerVideoStreamAdjuster = (callObj, clientID) => {
     const videoWrapperDOM = new DOMParser().parseFromString(
-      `<div 
-          id="video-wrapper-div" 
+      `<div
+          id="video-wrapper-div"
           class="col-md-4 px-1" 
           style="height: 20vh; overflow: hidden; border-radius: 20px;"
       >
         <div
           id="video-container"
-          style="height: 100%; overflow: hidden; border-radius: 20px; background-color: ${colorConfigs.tabHeaders};"
+          style="height: 100%; overflow: hidden; border-radius: 20px; background-color: ${
+            colorConfigs.tabHeaders
+          };"
         >
           <div
             id="video-overlay-client-profile-pic"
-            style="width: 7.5vh; height: 7.5vh; position: absolute; margin-top: calc(-0.8 * 20vh); margin-left: calc(0.16 * 33.33%); background-position: center; background-repeat: no-repeat; background-size: cover; border-radius: 7.5vh; overflow: hidden;"
+            style="width: 7.5vh; height: 7.5vh; position: absolute; margin-top: calc(-0.8 * 20vh); margin-left: calc(0.16 * 33.33%); background-image: url("${
+              this.props.participants.get(clientID)?.pic
+            }"); background-position: center; background-repeat: no-repeat; background-size: cover; border-radius: 7.5vh; overflow: hidden;"
           >
           </div>
           <video id="client-stream" style="borderRadius: 20px;" class="h-100 w-100" />
@@ -131,6 +135,7 @@ class VideoCallsComponent extends React.Component {
             class="my-auto" 
             style="font-size: 11px;"
           >
+          ${this.props.participants.get(clientID)?.name}
           </p>
         </div> 
       </div>`,
@@ -147,24 +152,8 @@ class VideoCallsComponent extends React.Component {
           otherUsersVideoStream.play();
         });
 
-        let videoOverlayProfilePic = videoWrapperDOM.getElementById(
-            "video-overlay-client-profile-pic"
-          ),
-          videoOverlayClientText =
-            videoWrapperDOM.getElementById("video-overlay-text");
         let videoRef = cloneDeep(this.state.videoRef);
-
         videoRef[`${clientID}`] = otherUsersVideoStream;
-
-        if (videoOverlayProfilePic)
-          videoOverlayProfilePic.style += `background-image: url("${
-            this.props.participants.get(clientID)?.pic
-          }")`;
-
-        if (videoOverlayClientText)
-          videoOverlayClientText.innerHTML = `${
-            this.props.participants.get(clientID)?.name
-          }`;
 
         this.setState({ videoRef });
         this.videostreamsListRef.current.appendChild(videoWrapper);
