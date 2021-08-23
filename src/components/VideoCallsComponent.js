@@ -96,8 +96,6 @@ class VideoCallsComponent extends React.Component {
     this.peerVideoStreamAdjuster(anotherUserCallObj, userId);
   };
 
-  //TODO: check the NOT-KNOWN caller id for linking his/her stream in the video refernce stream
-
   gettingCalled = (call) => {
     console.log("Am i getting a call?: ", call);
     call.answer(this.state.currentBrowserStream);
