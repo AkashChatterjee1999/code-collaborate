@@ -169,8 +169,8 @@ class CollabEditor extends React.Component {
     let chats = [...this.state.chats],
       curDtTimeObj = new Date(Date.now());
     chats.push({
-      profilePic: this.state.participants.get(clientID).pic,
-      sender: this.state.participants.get(clientID).name,
+      profilePic: this.props.participants.get(clientID).pic,
+      sender: this.props.participants.get(clientID).name,
       message: data,
       timeStamp: `${curDtTimeObj.getHours()}:${curDtTimeObj.getMinutes()}`,
     });

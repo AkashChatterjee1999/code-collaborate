@@ -140,6 +140,7 @@ class CollabSetupInitiator {
               data: data.data,
             };
             onChatMessageRecieved(chatData);
+            break;
           }
 
           case socketEvents.clientStreamStateChange: {
@@ -152,6 +153,7 @@ class CollabSetupInitiator {
               audio: data.constraints.audio,
             };
             onParticipantStreamConstraintChangeCb(streamStateChangeData);
+            break;
           }
 
           /**

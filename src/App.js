@@ -5,6 +5,7 @@ import { createStore } from "redux";
 import { Provider } from "react-redux";
 
 function App() {
+  console.error = () => {};
   return (
     <Provider store={createStore(allReducers)}>
       <CollabEditor />

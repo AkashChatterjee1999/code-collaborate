@@ -17,7 +17,7 @@ class MainPanelComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedPanel: 2,
+      selectedPanel: 1,
       participantIds: [],
     };
   }
@@ -110,9 +110,9 @@ class MainPanelComponent extends React.Component {
         ) : this.state.selectedPanel === 3 ? (
           <DiscussionComponent />
         ) : null}
-        <VideoCallsComponent
+        {/* <VideoCallsComponent
           className={this.state.selectedPanel === 2 ? "" : "d-none"}
-        />
+        /> */}
       </Container>
     );
   }
