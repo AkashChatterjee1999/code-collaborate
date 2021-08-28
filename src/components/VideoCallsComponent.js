@@ -122,7 +122,7 @@ class VideoCallsComponent extends React.Component {
             }"); background-position: center; background-repeat: no-repeat; background-size: cover; border-radius: 7.5vh; overflow: hidden;"
           >
           </div>
-          <video id="client-stream" style="borderRadius: 20px;" class="h-100 w-100" />
+          <video id="client-stream-${clientID}" style="borderRadius: 20px;" class="h-100 w-100" />
         </div>
         <div
           class="d-flex mr-auto"
@@ -140,7 +140,9 @@ class VideoCallsComponent extends React.Component {
       "text/html"
     );
     let videoWrapper = videoWrapperDOM.getElementById("video-wrapper-div");
-    let otherUsersVideoStream = videoWrapperDOM.getElementById("client-stream");
+    let otherUsersVideoStream = videoWrapperDOM.getElementById(
+      `client-stream-${clientID}`
+    );
 
     callObj.on(
       "stream",
@@ -151,7 +153,7 @@ class VideoCallsComponent extends React.Component {
         });
 
         let videoRef = cloneDeep(this.state.videoRef);
-        videoRef[`${clientID}`] = otherUsersVideoStream;
+        videoRef[`${clientID}`] = videoWrapper;
 
         this.setState({ videoRef });
         this.videostreamsListRef.current.appendChild(videoWrapper);
@@ -168,12 +170,19 @@ class VideoCallsComponent extends React.Component {
       ) {
         this.state.videoRef[participantId].remove();
       } else if (this.state.videoRef[participantId]) {
-        this.state.videoRef[participantId].style.opacity =
-          this.props.participants.get(participantId)?.streamConstraints?.video
+        let videoDOMHtmlElement = document.getElementById(
+          `client-stream-${participantId}`
+        );
+        if (videoDOMHtmlElement !== null && videoDOMHtmlElement !== undefined) {
+          videoDOMHtmlElement.style.opacity = this.props.participants.get(
+            participantId
+          )?.streamConstraints?.video
             ? 1
             : 0;
-        this.state.videoRef[participantId].muted =
-          this.props.participants.get(participantId)?.streamConstraints?.audio;
+          videoDOMHtmlElement.muted =
+            !this.props.participants.get(participantId)?.streamConstraints
+              ?.audio;
+        }
       }
     });
   };
