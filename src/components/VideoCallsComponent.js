@@ -73,7 +73,9 @@ class VideoCallsComponent extends React.Component {
         this.setState({ currentBrowserStream }, () => {
           if (!this.state.calledOthers) {
             this.props.callableParticipantsArray.forEach((participantId) => {
-              this.callAnotherUser(participantId);
+              if (participantId !== global.myCollabSocket.id)
+                // if this peer participant ss not me then only call them
+                this.callAnotherUser(participantId);
             });
           }
         });
