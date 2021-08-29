@@ -1,21 +1,6 @@
 import React from "react";
-import {
-  Navbar,
-  NavbarBrand,
-  NavbarText,
-  Container,
-  Row,
-  Col,
-} from "reactstrap";
-import {
-  Clock,
-  Layout,
-  Settings,
-  Sliders,
-  Terminal,
-  UserPlus,
-  Users,
-} from "react-feather";
+import { Navbar, NavbarBrand, NavbarText, Container, Row, Col } from "reactstrap";
+import { Clock, Layout, Settings, Sliders, Terminal, UserPlus, Users } from "react-feather";
 import { connect } from "react-redux";
 import { isEqual } from "lodash";
 import StatusHeaderDropdown from "../components/statusHeaderDropdown";
@@ -33,6 +18,7 @@ import {
   updateToCallParticipants,
   updatePeerStreamConstraints,
   updateStreamConstraints,
+  updateCode,
 } from "../redux/actions";
 
 const mapStateToProps = (props) => {
@@ -45,16 +31,12 @@ const mapStateToProps = (props) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    addParticipant: (participantId, participantData) =>
-      dispatch(addParticipant(participantId, participantData)),
-    removeParticipant: (participantId) =>
-      dispatch(removeParticipant(participantId)),
-    updatePrevParticipants: (participants) =>
-      dispatch(updatePrevParticipants(participants)),
-    updateToCallParticipants: (toCallParticipants) =>
-      dispatch(updateToCallParticipants(toCallParticipants)),
-    updatePeerStreamConstraints: (participantId, constraintsData) =>
-      dispatch(updatePeerStreamConstraints(participantId, constraintsData)),
+    addParticipant: (participantId, participantData) => dispatch(addParticipant(participantId, participantData)),
+    removeParticipant: (participantId) => dispatch(removeParticipant(participantId)),
+    updatePrevParticipants: (participants) => dispatch(updatePrevParticipants(participants)),
+    updateToCallParticipants: (toCallParticipants) => dispatch(updateToCallParticipants(toCallParticipants)),
+    updatePeerStreamConstraints: (participantId, constraintsData) => dispatch(updatePeerStreamConstraints(participantId, constraintsData)),
+    codeUpdater: (updatedCodeSocketData) => dispatch(updateCode(updatedCodeSocketData)),
   };
 };
 
@@ -103,7 +85,8 @@ class CollabEditor extends React.Component {
         this.addParticipant,
         this.deleteParticipant,
         this.addChat,
-        this.onParticipantStreamConstraintChange
+        this.onParticipantStreamConstraintChange,
+        this.onCodeUpdation
       );
     });
   };
@@ -120,8 +103,7 @@ class CollabEditor extends React.Component {
         streamConstraints: participantData.streamConstraints,
       };
       participants.set(participantId, participantInfo);
-      if (this.collabSocket.id !== participantId)
-        callableParticipantsArray.push(participantId);
+      if (this.collabSocket.id !== participantId) callableParticipantsArray.push(participantId);
     });
     this.props.updatePrevParticipants(participants);
     this.props.updateToCallParticipants(callableParticipantsArray);
@@ -155,10 +137,7 @@ class CollabEditor extends React.Component {
   globalStateChangeSubscriber = () => {
     // Sense the change of client's stream constraints
     if (!isEqual(this.props.videoStreamConstraints, this.streamConstraints)) {
-      this.collabSocket.changeStreamState(
-        this.props.videoStreamConstraints.video,
-        this.props.videoStreamConstraints.audio
-      );
+      this.collabSocket.changeStreamState(this.props.videoStreamConstraints.video, this.props.videoStreamConstraints.audio);
       this.streamConstraints = this.props.videoStreamConstraints;
     }
     // Sense all the global state changes here ...
@@ -177,9 +156,18 @@ class CollabEditor extends React.Component {
     this.setState({ chats });
   };
 
+  onCodeUpdation = (socketCodeData) => {
+    this.props.codeUpdater(socketCodeData);
+  };
+
   sendChat = (chatMessage) => {
     console.log("Sending chat: ", chatMessage);
     this.collabSocket.sendChat(chatMessage);
+  };
+
+  updateCode = (code) => {
+    console.log("Updating Code: ", code);
+    this.collabSocket.updateCode(code);
   };
 
   render() {
@@ -192,25 +180,15 @@ class CollabEditor extends React.Component {
           backgroundColor: colorConfigs.extreme,
           height: "100vh",
           overflow: "hidden",
-        }}
-      >
+        }}>
         <Navbar dark expand="md" className="px-2">
           <NavbarBrand href="/">
             <Terminal size="25px" strokeWidth="4px" color="#f5791b" />
-            <NavbarText style={{ fontSize: "14px" }}>
-              Code-Collaborate
-            </NavbarText>
+            <NavbarText style={{ fontSize: "14px" }}>Code-Collaborate</NavbarText>
           </NavbarBrand>
         </Navbar>
-        <Container
-          fluid
-          className="d-flex"
-          style={{ height: "40px", backgroundColor: colorConfigs.darkGrey }}
-        >
-          <Row
-            className="w-50 px-3 my-auto justify-content-evenly"
-            style={{ maxWidth: "500px" }}
-          >
+        <Container fluid className="d-flex" style={{ height: "40px", backgroundColor: colorConfigs.darkGrey }}>
+          <Row className="w-50 px-3 my-auto justify-content-evenly" style={{ maxWidth: "500px" }}>
             <StatusHeaderDropdown
               icon={
                 <div className="p-0" style={{ width: "fit-content" }}>
@@ -244,10 +222,7 @@ class CollabEditor extends React.Component {
               text="Presentation"
             />
           </Row>
-          <Row
-            className="w-25 px-3 my-auto justify-content-evenly ml-auto"
-            style={{ maxWidth: "300px" }}
-          >
+          <Row className="w-25 px-3 my-auto justify-content-evenly ml-auto" style={{ maxWidth: "300px" }}>
             <StatusHeaderDropdown
               icon={
                 <div className="p-0" style={{ width: "fit-content" }}>
@@ -267,15 +242,8 @@ class CollabEditor extends React.Component {
           </Row>
         </Container>
         <Row className="px-3">
-          <Col
-            md={3}
-            style={{ height: "87vh", overflow: "hidden" }}
-            className="py-3"
-          >
-            <ParticipantsPanelComponent
-              host={this.state.host}
-              participants={this.props.participants}
-            />
+          <Col md={3} style={{ height: "87vh", overflow: "hidden" }} className="py-3">
+            <ParticipantsPanelComponent host={this.state.host} participants={this.props.participants} />
           </Col>
           <Col md={6} className="py-3" style={{ height: "87vh" }}>
             <Container
@@ -285,11 +253,8 @@ class CollabEditor extends React.Component {
                 color: "white",
                 overflow: "hidden",
                 height: "100%",
-              }}
-            >
-              <MainPanelComponent
-                participantIds={this.props.callableParticipantsArray}
-              />
+              }}>
+              <MainPanelComponent participantIds={this.props.callableParticipantsArray} codeUpdater={this.updateCode} />
             </Container>
           </Col>
           <Col md={3} className="py-3" style={{ height: "87vh" }}>
@@ -300,13 +265,9 @@ class CollabEditor extends React.Component {
                 height: "100%",
                 color: "white",
                 overflow: "hidden",
-              }}
-            >
+              }}>
               <InputOutputComponent />
-              <ChatComponent
-                chats={this.state.chats}
-                sendChat={this.sendChat}
-              />
+              <ChatComponent chats={this.state.chats} sendChat={this.sendChat} />
             </Container>
           </Col>
         </Row>

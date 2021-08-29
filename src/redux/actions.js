@@ -27,10 +27,7 @@ export const updateToCallParticipants = (toCallParticipants) => {
   };
 };
 
-export const updatePeerStreamConstraints = (
-  participantId,
-  peerStreamConstraintData
-) => {
+export const updatePeerStreamConstraints = (participantId, peerStreamConstraintData) => {
   return {
     type: "UPDATE_PEER_STREAM_CONSTRAINT_CHANGE",
     participantId,
@@ -42,5 +39,12 @@ export const updateStreamConstraints = (streamConstraints) => {
   return {
     type: "UPDATE_STREAM_CONSTRAINTS",
     streamConstraints,
+  };
+};
+
+export const updateCode = (updatedCode) => {
+  return {
+    type: "UPDATE_CODE",
+    updatedCode,
   };
 };

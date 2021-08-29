@@ -10,6 +10,7 @@ export let socketEvents = {
   peerDisconnectEvent: "CLIENT_DISCONNECTED",
   openEvent: "OPEN",
   chatEvent: "CHAT",
+  codeUpdated: "UPDATED_CODE",
   clientInfoAcknowledgement: "ACKNOWLEDGE_CLIENT_INFO",
   clientInfoEvent: "CLIENT_INFO",
   clientStreamStateChange: "STREAM_STATE_CHANGE",

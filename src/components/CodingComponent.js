@@ -2,8 +2,10 @@ import React from "react";
 import AceEditor from "react-ace";
 import { Row, Container, Button, Col } from "reactstrap";
 import { colorConfigs } from "../config/configs";
+import { connect } from "react-redux";
 import CodingComponentDropdown from "./CodingComponentDropdowns";
 import { defaultTabHeight, defaultSubTabHeight, rightSidebarTabHeights } from "../config/configs";
+
 import "./styles/codingComponent.scss";
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/mode-java";
@@ -17,6 +19,11 @@ import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/theme-merbivore";
 import "ace-builds/src-noconflict/theme-dracula";
 
+const mapStateToProps = (props) => {
+  return {
+    updatedCodeData: props.codeUpdaterReducer,
+  };
+};
 const MainPanelContainerHeight = `calc( 100% - ( ${defaultTabHeight} + ${defaultSubTabHeight} ) )`;
 
 class CodingComponent extends React.Component {
@@ -136,6 +143,10 @@ class CodingComponent extends React.Component {
   };
 
   render() {
+    if (global.myCollabSocket && this.props.updatedCodeData.clientID !== global.myCollabSocket.id) {
+      console.log(global.myCollabSocket.id, "new code request: ", this.props.updatedCodeData);
+      this.codeEditor.current.editor.setValue(this.props.updatedCodeData.code);
+    }
     return (
       <>
         <Row
@@ -174,9 +185,14 @@ class CodingComponent extends React.Component {
             placeholder="//Write from here"
             mode={this.state.selectedLanguage.value}
             theme={this.state.selectedTheme.value}
-            style={{ width: "100%", height: "100%" }}
+            style={{ width: "100%", height: "100%", fontFamily: "operator-mono" }}
             name="collab-code-editor"
-            onChange={(value) => this.setState({ code: value }, () => console.log(value))}
+            onChange={(value) => {
+              setTimeout(() => {
+                this.props.onCodeChanged(value);
+                this.setState({ code: value });
+              }, 0);
+            }}
             fontSize={this.state.selectedFontSize}
             showPrintMargin={true}
             showGutter={true}
@@ -195,7 +211,7 @@ class CodingComponent extends React.Component {
   }
 }
 
-export default CodingComponent;
+export default connect(mapStateToProps)(CodingComponent);
 
 {
   /* <div

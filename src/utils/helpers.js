@@ -18,7 +18,8 @@ class CollabSetupInitiator {
     participantAddCb,
     participantDisconnectCb,
     onChatMessageRecieved,
-    onParticipantStreamConstraintChangeCb
+    onParticipantStreamConstraintChangeCb,
+    onCodeChangedCb
   ) => {
     /**
      * Step1. Connect to my socket server
@@ -156,15 +157,21 @@ class CollabSetupInitiator {
             break;
           }
 
+          case socketEvents.codeUpdated: {
+            let clientCode = {
+              clientID: data.clientID,
+              code: data.code,
+            };
+            onCodeChangedCb(clientCode);
+            break;
+          }
+
           /**
            * Socket event switcher ends here
            */
         }
       } catch (err) {
-        console.log(
-          "Data non parseable as JSON... falling back it as a string message",
-          err.stack
-        );
+        console.log("Data non parseable as JSON... falling back it as a string message", err.stack);
         console.log(data);
       }
 
@@ -197,19 +204,31 @@ class CollabSetupInitiator {
     );
   };
 
+  updateCode = (code) => {
+    this.socketPointer.send(
+      JSON.stringify({
+        responseEvent: socketEvents.codeUpdated,
+        clientID: this.id,
+        code: code,
+      })
+    );
+  };
+
   registerSocketCallbacks = (
     participantsCb,
     participantAddCb,
     participantDisconnectCb,
     onChatMessageRecieved,
-    onParticipantStreamConstraintChangeCb
+    onParticipantStreamConstraintChangeCb,
+    onCodeChangedCb
   ) => {
     this.connectSocket(
       participantsCb,
       participantAddCb,
       participantDisconnectCb,
       onChatMessageRecieved,
-      onParticipantStreamConstraintChangeCb
+      onParticipantStreamConstraintChangeCb,
+      onCodeChangedCb
     );
   };
 }

@@ -53,10 +53,7 @@ const toCallParticipants = (state = [], action) => {
   }
 };
 
-const changeVideoStreamConstraints = (
-  state = { video: true, audio: true },
-  action
-) => {
+const changeVideoStreamConstraints = (state = { video: true, audio: true }, action) => {
   switch (action.type) {
     case "UPDATE_STREAM_CONSTRAINTS": {
       return {
@@ -70,8 +67,23 @@ const changeVideoStreamConstraints = (
   }
 };
 
+const codeUpdaterReducer = (state = { clientID: "", code: "" }, action) => {
+  switch (action.type) {
+    case "UPDATE_CODE": {
+      return {
+        clientID: action.updatedCode.clientID,
+        code: action.updatedCode.code,
+      };
+    }
+
+    default:
+      return state;
+  }
+};
+
 export default combineReducers({
   participantReducers,
   toCallParticipants,
   changeVideoStreamConstraints,
+  codeUpdaterReducer,
 });
