@@ -19,7 +19,8 @@ class CollabSetupInitiator {
     participantDisconnectCb,
     onChatMessageRecieved,
     onParticipantStreamConstraintChangeCb,
-    onCodeChangedCb
+    onCodeChangedCb,
+    onCursorsManipulationCb
   ) => {
     /**
      * Step1. Connect to my socket server
@@ -62,13 +63,18 @@ class CollabSetupInitiator {
              */
 
             data.metadataData.connectedClients.forEach((client) => {
-              this.participants.set(client.clientId, {
+              let participantObj = {
                 name: client.name,
                 profilePic: client.profilePic,
                 location: client.location,
                 email: client.email,
                 streamConstraints: client.streamConstraints,
-              });
+              };
+              if (client.cursorPosition) {
+                participantObj.cursorPosition = client.cursorPosition;
+                onCursorsManipulationCb("ADD", client.clientId, client.cursorPosition, client.name);
+              }
+              this.participants.set(client.clientId, participantObj);
             });
             participantsCb(this.participants);
 
@@ -130,6 +136,7 @@ class CollabSetupInitiator {
           case socketEvents.peerDisconnectEvent: {
             let clientID = data.data.clientID;
             this.participants.delete(clientID);
+            onCursorsManipulationCb("REMOVE", data.data.clientID);
             participantDisconnectCb(clientID);
             break;
           }
@@ -155,6 +162,20 @@ class CollabSetupInitiator {
             };
             onParticipantStreamConstraintChangeCb(streamStateChangeData);
             break;
+          }
+
+          case socketEvents.cursorAdded: {
+            let clientData = this.participants.get(data.data.clientID);
+            clientData.cursorPosition = data.data.cursorPosition;
+            this.participants.set(data.data.clientID, clientData);
+            onCursorsManipulationCb("ADD", data.data.clientID, data.data.cursorPosition, clientData.name);
+          }
+
+          case socketEvents.cursorPositionUpdated: {
+            let clientData = this.participants.get(data.data.clientID);
+            clientData.cursorPosition = data.data.cursorPosition;
+            this.participants.set(data.data.clientID, clientData);
+            onCursorsManipulationCb("UPDATE", data.data.clientID, data.data.cursorPosition);
           }
 
           case socketEvents.codeUpdated: {
@@ -204,6 +225,30 @@ class CollabSetupInitiator {
     );
   };
 
+  addCursorPosition = (cursorPosition) => {
+    this.socketPointer.send(
+      JSON.stringify({
+        responseEvent: socketEvents.cursorAdded,
+        data: {
+          clientID: this.id,
+          cursorPosition,
+        },
+      })
+    );
+  };
+
+  updateCursorPosition = (cursorPosition) => {
+    this.socketPointer.send(
+      JSON.stringify({
+        responseEvent: socketEvents.cursorPositionUpdated,
+        data: {
+          clientID: this.id,
+          cursorPosition,
+        },
+      })
+    );
+  };
+
   updateCode = (code) => {
     this.socketPointer.send(
       JSON.stringify({
@@ -220,7 +265,8 @@ class CollabSetupInitiator {
     participantDisconnectCb,
     onChatMessageRecieved,
     onParticipantStreamConstraintChangeCb,
-    onCodeChangedCb
+    onCodeChangedCb,
+    onCursorsManipulationCb
   ) => {
     this.connectSocket(
       participantsCb,
@@ -228,7 +274,8 @@ class CollabSetupInitiator {
       participantDisconnectCb,
       onChatMessageRecieved,
       onParticipantStreamConstraintChangeCb,
-      onCodeChangedCb
+      onCodeChangedCb,
+      onCursorsManipulationCb
     );
   };
 }

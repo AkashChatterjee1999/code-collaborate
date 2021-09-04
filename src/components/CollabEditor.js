@@ -4,7 +4,7 @@ import { Clock, Layout, Settings, Sliders, Terminal, UserPlus, Users } from "rea
 import { connect } from "react-redux";
 import { isEqual } from "lodash";
 import StatusHeaderDropdown from "../components/statusHeaderDropdown";
-import { colorConfigs } from "../config/configs";
+import { colorConfigs, assignColorToClientID } from "../config/configs";
 import CollabSetupInitiator from "../utils/helpers";
 import MainPanelComponent from "../components/MainPanelComponent";
 import ParticipantsPanelComponent from "./participantsPanelComponent";
@@ -25,6 +25,7 @@ const mapStateToProps = (props) => {
   return {
     participants: props.participantReducers,
     callableParticipantsArray: props.toCallParticipants,
+    editorCursorManagerReference: props.cursorManagerReducer,
     videoStreamConstraints: props.changeVideoStreamConstraints,
   };
 };
@@ -86,9 +87,34 @@ class CollabEditor extends React.Component {
         this.deleteParticipant,
         this.addChat,
         this.onParticipantStreamConstraintChange,
-        this.onCodeUpdation
+        this.onCodeUpdation,
+        this.cursorManipulator
       );
     });
+  };
+
+  cursorManipulator = (actionType, clientID, cursorPosition, clientName = null) => {
+    if (clientID !== this.collabSocket.id) {
+      //Only change the cursor for others
+      switch (actionType) {
+        case "ADD": {
+          this.props.editorCursorManagerReference.addCursor(clientID, clientName, assignColorToClientID(), cursorPosition);
+          break;
+        }
+        case "UPDATE": {
+          this.props.editorCursorManagerReference.setCursor(clientID, cursorPosition);
+          break;
+        }
+        case "REMOVE": {
+          this.props.editorCursorManagerReference.removeCursor(clientID);
+          break;
+        }
+        default: {
+          console.log("Wrong action type is triggered in cursor manipulator");
+          break;
+        }
+      }
+    }
   };
 
   getParticipants = (roomParticipants) => {

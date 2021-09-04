@@ -4,7 +4,10 @@ import { Row, Container, Button, Col } from "reactstrap";
 import { colorConfigs } from "../config/configs";
 import { connect } from "react-redux";
 import CodingComponentDropdown from "./CodingComponentDropdowns";
+import { isEqual } from "lodash";
 import { defaultTabHeight, defaultSubTabHeight, rightSidebarTabHeights } from "../config/configs";
+import * as AceCollabExt from "@convergence/ace-collab-ext";
+import { updateEditorCursorManager } from "../redux/actions";
 
 import "./styles/codingComponent.scss";
 import "ace-builds/src-noconflict/mode-javascript";
@@ -24,6 +27,13 @@ const mapStateToProps = (props) => {
     updatedCodeData: props.codeUpdaterReducer,
   };
 };
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updateEditorCursorManagerRef: (cursorManagerRef) => dispatch(updateEditorCursorManager(cursorManagerRef)),
+  };
+};
+
 const MainPanelContainerHeight = `calc( 100% - ( ${defaultTabHeight} + ${defaultSubTabHeight} ) )`;
 
 class CodingComponent extends React.Component {
@@ -37,6 +47,8 @@ class CodingComponent extends React.Component {
         label: "Javascript",
         value: "javascript",
       },
+      addedCursorPosition: false,
+      previousCursorPosition: {},
       selectedFontSize: 14,
       selectedTheme: {
         label: "Theme: Terminal",
@@ -142,11 +154,27 @@ class CodingComponent extends React.Component {
     codeEditorDiv.focus();
   };
 
+  componentDidMount() {
+    this.props.updateEditorCursorManagerRef(new AceCollabExt.AceMultiCursorManager(this.codeEditor.current.editor.getSession()));
+    setInterval(() => {
+      if (this.codeEditor.current) {
+        let currentCursorPosition = this.codeEditor.current.editor.getCursorPosition();
+        if (!(currentCursorPosition.row === 0 && currentCursorPosition.column === 0)) {
+          if (!this.state.addedCursorPosition) {
+            this.setState({ addedCursorPosition: true, previousCursorPosition: currentCursorPosition }, () => {
+              global.myCollabSocket.addCursorPosition(currentCursorPosition);
+            });
+          } else if (!isEqual(currentCursorPosition, this.state.previousCursorPosition)) {
+            this.setState({ previousCursorPosition: currentCursorPosition }, () => {
+              global.myCollabSocket.updateCursorPosition(currentCursorPosition);
+            });
+          }
+        }
+      }
+    }, 250); // Update every 0.25 secs
+  }
+
   render() {
-    if (global.myCollabSocket && this.props.updatedCodeData.clientID !== global.myCollabSocket.id) {
-      console.log(global.myCollabSocket.id, "new code request: ", this.props.updatedCodeData);
-      this.codeEditor.current.editor.setValue(this.props.updatedCodeData.code);
-    }
     return (
       <>
         <Row
@@ -189,7 +217,6 @@ class CodingComponent extends React.Component {
             name="collab-code-editor"
             onChange={(value) => {
               setTimeout(() => {
-                this.props.onCodeChanged(value);
                 this.setState({ code: value });
               }, 0);
             }}
@@ -211,7 +238,7 @@ class CodingComponent extends React.Component {
   }
 }
 
-export default connect(mapStateToProps)(CodingComponent);
+export default connect(mapStateToProps, mapDispatchToProps)(CodingComponent);
 
 {
   /* <div

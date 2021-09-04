@@ -42,6 +42,13 @@ export const updateStreamConstraints = (streamConstraints) => {
   };
 };
 
+export const updateEditorCursorManager = (cursorManagerReference) => {
+  return {
+    type: "UPDATE_CURSOR_MANAGER_REFERENCE",
+    cursorManagerReference,
+  };
+};
+
 export const updateCode = (updatedCode) => {
   return {
     type: "UPDATE_CODE",

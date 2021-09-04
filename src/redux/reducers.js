@@ -67,6 +67,17 @@ const changeVideoStreamConstraints = (state = { video: true, audio: true }, acti
   }
 };
 
+const cursorManagerReducer = (state = {}, action) => {
+  switch (action.type) {
+    case "UPDATE_CURSOR_MANAGER_REFERENCE": {
+      return action.cursorManagerReference;
+    }
+
+    default:
+      return state;
+  }
+};
+
 const codeUpdaterReducer = (state = { clientID: "", code: "" }, action) => {
   switch (action.type) {
     case "UPDATE_CODE": {
@@ -85,5 +96,6 @@ export default combineReducers({
   participantReducers,
   toCallParticipants,
   changeVideoStreamConstraints,
+  cursorManagerReducer,
   codeUpdaterReducer,
 });
