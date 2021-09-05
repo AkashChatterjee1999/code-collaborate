@@ -18,6 +18,7 @@ export let socketEvents = {
   clientStreamStateChange: "STREAM_STATE_CHANGE",
 };
 
+export const syncCodeDifferencesId = "7eqdabbak-124124dqw-23423r2-d23d23d";
 export const assignColorToClientID = () => {
   let colors = ["red", "orange", "pink", "yellow", "blue", "green"];
   let no = Math.floor(Math.random() * 90 + 10);

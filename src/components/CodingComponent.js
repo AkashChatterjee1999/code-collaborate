@@ -1,12 +1,14 @@
 import React from "react";
 import AceEditor from "react-ace";
 import { Row, Container, Button, Col } from "reactstrap";
-import { colorConfigs } from "../config/configs";
+import { colorConfigs, syncCodeDifferencesId } from "../config/configs";
 import { connect } from "react-redux";
 import CodingComponentDropdown from "./CodingComponentDropdowns";
 import { isEqual } from "lodash";
+import DiffSyncHelper from "../utils/diffSyncHelper";
 import { defaultTabHeight, defaultSubTabHeight, rightSidebarTabHeights } from "../config/configs";
 import * as AceCollabExt from "@convergence/ace-collab-ext";
+import "@convergence/ace-collab-ext/css/ace-collab-ext.min.css";
 import { updateEditorCursorManager } from "../redux/actions";
 
 import "./styles/codingComponent.scss";
@@ -41,6 +43,8 @@ class CodingComponent extends React.Component {
     super(props);
     this.langSeelectionDropDownRef = React.createRef();
     this.codeEditor = React.createRef();
+    this.codeDifferenceSynchronizer = null;
+    this.prevCodeSnapshot = "";
     this.state = {
       displayDropDown: false,
       selectedLanguage: {
@@ -156,7 +160,25 @@ class CodingComponent extends React.Component {
 
   componentDidMount() {
     this.props.updateEditorCursorManagerRef(new AceCollabExt.AceMultiCursorManager(this.codeEditor.current.editor.getSession()));
-    setInterval(() => {
+    this.codeDifferenceSynchronizer = new DiffSyncHelper(syncCodeDifferencesId);
+    this.codeDifferenceSynchronizer.registerDiffSyncEvents(
+      (initialCode) => {
+        if (initialCode) this.codeEditor.current.editor.setValue(initialCode);
+      },
+      (updatedCode) => {
+        if (updatedCode && this.prevCodeSnapshot !== updatedCode) {
+          let currentCursorPosition = this.codeEditor.current.editor.getCursorPosition();
+          this.prevCodeSnapshot = updatedCode;
+          this.codeEditor.current.editor.setValue(updatedCode);
+          this.codeEditor.current.editor.moveCursorTo(currentCursorPosition.row, currentCursorPosition.column);
+        }
+      }
+    );
+  }
+
+  codeSyncAndCursorPositionUpdater = (code) => {
+    this.prevCodeSnapshot = code;
+    this.codeDifferenceSynchronizer.synchroizeDifferences(code, () => {
       if (this.codeEditor.current) {
         let currentCursorPosition = this.codeEditor.current.editor.getCursorPosition();
         if (!(currentCursorPosition.row === 0 && currentCursorPosition.column === 0)) {
@@ -171,8 +193,8 @@ class CodingComponent extends React.Component {
           }
         }
       }
-    }, 250); // Update every 0.25 secs
-  }
+    });
+  };
 
   render() {
     return (
@@ -216,9 +238,7 @@ class CodingComponent extends React.Component {
             style={{ width: "100%", height: "100%", fontFamily: "operator-mono" }}
             name="collab-code-editor"
             onChange={(value) => {
-              setTimeout(() => {
-                this.setState({ code: value });
-              }, 0);
+              setTimeout(() => this.codeSyncAndCursorPositionUpdater(value), 0);
             }}
             fontSize={this.state.selectedFontSize}
             showPrintMargin={true}
