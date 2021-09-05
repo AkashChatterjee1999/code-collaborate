@@ -5,10 +5,10 @@ import { connect } from "react-redux";
 import { isEqual } from "lodash";
 import StatusHeaderDropdown from "../components/statusHeaderDropdown";
 import { colorConfigs, assignColorToClientID } from "../config/configs";
-import CollabSetupInitiator from "../utils/helpers";
 import MainPanelComponent from "../components/MainPanelComponent";
 import ParticipantsPanelComponent from "./participantsPanelComponent";
 import person1Sm from "../assets/images/person1-about-us-sm.png";
+import { meObj, collabSocket, registerCollabSocketCallbacks } from "../utils/socketConnectors";
 import InputOutputComponent from "./inputOutputComponent";
 import ChatComponent from "./ChatComponent";
 import {
@@ -60,26 +60,10 @@ class CollabEditor extends React.Component {
     };
   }
   componentDidMount = () => {
-    let meObj = {
-      name: prompt("Your Name"),
-      location: prompt("Your location"),
-      email: prompt("Your Email"),
-      profilePicURL: prompt("profilePicURL"),
-    };
-
     global.aboutMe = meObj;
     this.setState({ me: meObj }, () => {
-      this.collabSocket = new CollabSetupInitiator(
-        "localhost:5050",
-        this.state.me.name,
-        this.state.me.profilePicURL,
-        this.state.me.location,
-        this.state.me.email
-      );
-
-      global.myCollabSocket = this.collabSocket;
-
-      this.collabSocket.registerSocketCallbacks(
+      this.collabSocket = collabSocket;
+      registerCollabSocketCallbacks(
         this.getParticipants,
         this.addParticipant,
         this.deleteParticipant,

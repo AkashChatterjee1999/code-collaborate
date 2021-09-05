@@ -2,8 +2,9 @@ import { socketEvents } from "../config/configs";
 import PeerToPeerConnection from "../utils/peerJsHelpers";
 
 class CollabSetupInitiator {
-  constructor(socketDomain, profileName, profilePicURL, location, email) {
+  constructor(socketDomain, profileName, profilePicURL, location, email, roomID) {
     this.id = null;
+    this.roomID = roomID;
     this.clientName = profileName;
     this.email = email;
     this.profilePicURL = profilePicURL;
@@ -14,6 +15,7 @@ class CollabSetupInitiator {
   }
 
   connectSocket = (
+    onClientIDReadyCb,
     participantsCb,
     participantAddCb,
     participantDisconnectCb,
@@ -57,30 +59,10 @@ class CollabSetupInitiator {
             this.id = data.metadataData.id;
 
             /**
-             * Getting the peers connected in the room and adding them to the map
-             * Note: Map used for faster retrieval than array for serious situations
-             */
-
-            data.metadataData.connectedClients.forEach((client) => {
-              let participantObj = {
-                name: client.name,
-                profilePic: client.profilePic,
-                location: client.location,
-                email: client.email,
-                streamConstraints: client.streamConstraints,
-              };
-              if (client.cursorPosition) {
-                participantObj.cursorPosition = client.cursorPosition;
-                onCursorsManipulationCb("ADD", client.clientId, client.cursorPosition, client.name);
-              }
-              this.participants.set(client.clientId, participantObj);
-            });
-            participantsCb(this.participants);
-
-            /**
-             * After getting information about all the clients connected to this room
+             * After getting basic information about my id,
              * Just tell the server about yourself also so that it can broadcast that to all
-             * clients connected to this room
+             * clients connected to this room and also about the room id,
+             * if you don't have server will generate one for you
              */
 
             this.socketPointer.send(
@@ -90,6 +72,7 @@ class CollabSetupInitiator {
                 clientID: this.id,
                 profilePic: this.profilePicURL,
                 clientEmail: this.email,
+                roomID: this.roomID,
                 location: this.clientLocation,
               })
             );
@@ -127,7 +110,30 @@ class CollabSetupInitiator {
           case socketEvents.clientInfoAcknowledgement: {
             console.log("Server acknowledgement for client_info event: ", data);
             this.id = data.data.id;
+            this.roomID = data.data.roomID;
             global.me = new PeerToPeerConnection(this.id);
+            onClientIDReadyCb(this.id, this.roomID);
+
+            /**
+             * Getting the peers connected in the room and adding them to the map
+             * Note: Map used for faster retrieval than array for serious situations
+             */
+
+            data.data.connectedClients.forEach((client) => {
+              let participantObj = {
+                name: client.name,
+                profilePic: client.profilePic,
+                location: client.location,
+                email: client.email,
+                streamConstraints: client.streamConstraints,
+              };
+              if (client.cursorPosition) {
+                participantObj.cursorPosition = client.cursorPosition;
+                onCursorsManipulationCb("ADD", client.clientId, client.cursorPosition, client.name);
+              }
+              this.participants.set(client.clientId, participantObj);
+            });
+            participantsCb(this.participants);
             break;
           }
 
@@ -199,6 +205,7 @@ class CollabSetupInitiator {
       JSON.stringify({
         responseEvent: socketEvents.chatEvent,
         clientID: this.id,
+        roomID: this.roomID,
         data: chatMessage,
       })
     );
@@ -209,6 +216,7 @@ class CollabSetupInitiator {
       JSON.stringify({
         responseEvent: socketEvents.clientStreamStateChange,
         clientID: this.id,
+        roomID: this.roomID,
         constraints: {
           video,
           audio,
@@ -223,6 +231,7 @@ class CollabSetupInitiator {
         responseEvent: socketEvents.cursorAdded,
         data: {
           clientID: this.id,
+          roomID: this.roomID,
           cursorPosition,
         },
       })
@@ -235,6 +244,7 @@ class CollabSetupInitiator {
         responseEvent: socketEvents.cursorPositionUpdated,
         data: {
           clientID: this.id,
+          roomID: this.roomID,
           cursorPosition,
         },
       })
@@ -249,14 +259,23 @@ class CollabSetupInitiator {
     onParticipantStreamConstraintChangeCb,
     onCursorsManipulationCb
   ) => {
-    this.connectSocket(
-      participantsCb,
-      participantAddCb,
-      participantDisconnectCb,
-      onChatMessageRecieved,
-      onParticipantStreamConstraintChangeCb,
-      onCursorsManipulationCb
-    );
+    return new Promise((resolve, reject) => {
+      try {
+        this.connectSocket(
+          (clientID, roomID) => {
+            resolve({ clientID, roomID });
+          },
+          participantsCb,
+          participantAddCb,
+          participantDisconnectCb,
+          onChatMessageRecieved,
+          onParticipantStreamConstraintChangeCb,
+          onCursorsManipulationCb
+        );
+      } catch (err) {
+        reject(err);
+      }
+    });
   };
 }
 

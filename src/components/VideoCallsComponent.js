@@ -1,19 +1,13 @@
 import React from "react";
 import { Row, Container, Button, Col } from "reactstrap";
 import { colorConfigs } from "../config/configs";
-import {
-  defaultTabHeight,
-  defaultSubTabHeight,
-  rightSidebarTabHeights,
-} from "../config/configs";
+import { defaultTabHeight, defaultSubTabHeight, rightSidebarTabHeights } from "../config/configs";
 import "./styles/codingComponent.scss";
 import { cloneDeep } from "lodash";
 import { connect } from "react-redux";
+import { collabSocket } from "../utils/socketConnectors";
 import { VideoOff, Video, Mic, MicOff } from "react-feather";
-import {
-  updatePeerStreamConstraints,
-  updateStreamConstraints,
-} from "../redux/actions";
+import { updatePeerStreamConstraints, updateStreamConstraints } from "../redux/actions";
 
 const MainPanelIconSize = "16px";
 const MainSubPanelIconSize = "12px";
@@ -29,10 +23,8 @@ const mapStateToProps = (props) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    updatePeerStreamConstraints: (constraintsData) =>
-      dispatch(updatePeerStreamConstraints(constraintsData)),
-    updateStreamConstraints: (constraintsData) =>
-      dispatch(updateStreamConstraints(constraintsData)),
+    updatePeerStreamConstraints: (constraintsData) => dispatch(updatePeerStreamConstraints(constraintsData)),
+    updateStreamConstraints: (constraintsData) => dispatch(updateStreamConstraints(constraintsData)),
   };
 };
 
@@ -57,13 +49,10 @@ class VideoCallsComponent extends React.Component {
         console.log("Current Browwsestream: ", currentBrowserStream);
         this.state.videoRef[0].current.srcObject = currentBrowserStream;
         console.log(this.state.videoRef[0].current.addEventListener);
-        this.state.videoRef[0].current.addEventListener(
-          "loadedmetadata",
-          () => {
-            console.log("Loaded data video");
-            this.state.videoRef[0].current.play();
-          }
-        );
+        this.state.videoRef[0].current.addEventListener("loadedmetadata", () => {
+          console.log("Loaded data video");
+          this.state.videoRef[0].current.play();
+        });
 
         global.me.peer.on("call", this.gettingCalled);
         global.me.peer.on("disconnected", function () {
@@ -73,7 +62,7 @@ class VideoCallsComponent extends React.Component {
         this.setState({ currentBrowserStream }, () => {
           if (!this.state.calledOthers) {
             this.props.callableParticipantsArray.forEach((participantId) => {
-              if (participantId !== global.myCollabSocket.id)
+              if (participantId !== collabSocket.id)
                 // if this peer participant ss not me then only call them
                 this.callAnotherUser(participantId);
             });
@@ -87,10 +76,7 @@ class VideoCallsComponent extends React.Component {
 
   callAnotherUser = (userId) => {
     console.log("Am i calling?: ", userId, this.state.currentBrowserStream);
-    let anotherUserCallObj = global.me.peer.call(
-      userId,
-      this.state.currentBrowserStream
-    );
+    let anotherUserCallObj = global.me.peer.call(userId, this.state.currentBrowserStream);
     console.log(anotherUserCallObj);
     global.me.peer.on("error", function (err) {
       console.log("PeerJs Error: ", err);
@@ -113,9 +99,7 @@ class VideoCallsComponent extends React.Component {
       >
         <div
           id="video-container"
-          style="height: 100%; overflow: hidden; border-radius: 20px; background-color: ${
-            colorConfigs.tabHeaders
-          };"
+          style="height: 100%; overflow: hidden; border-radius: 20px; background-color: ${colorConfigs.tabHeaders};"
         >
           <div
             id="video-overlay-client-profile-pic"
@@ -142,9 +126,7 @@ class VideoCallsComponent extends React.Component {
       "text/html"
     );
     let videoWrapper = videoWrapperDOM.getElementById("video-wrapper-div");
-    let otherUsersVideoStream = videoWrapperDOM.getElementById(
-      `client-stream-${clientID}`
-    );
+    let otherUsersVideoStream = videoWrapperDOM.getElementById(`client-stream-${clientID}`);
 
     callObj.on(
       "stream",
@@ -166,24 +148,13 @@ class VideoCallsComponent extends React.Component {
   performVideoCallsStateChangeOnGlobalEvents = () => {
     console.log("Particpants current situation: ", this.props.participants);
     Array.from(this.props.participants.keys()).forEach((participantId) => {
-      if (
-        !this.props.participants.get(participantId).isOnline &&
-        this.state.videoRef[participantId]
-      ) {
+      if (!this.props.participants.get(participantId).isOnline && this.state.videoRef[participantId]) {
         this.state.videoRef[participantId].remove();
       } else if (this.state.videoRef[participantId]) {
-        let videoDOMHtmlElement = document.getElementById(
-          `client-stream-${participantId}`
-        );
+        let videoDOMHtmlElement = document.getElementById(`client-stream-${participantId}`);
         if (videoDOMHtmlElement !== null && videoDOMHtmlElement !== undefined) {
-          videoDOMHtmlElement.style.opacity = this.props.participants.get(
-            participantId
-          )?.streamConstraints?.video
-            ? 1
-            : 0;
-          videoDOMHtmlElement.muted =
-            !this.props.participants.get(participantId)?.streamConstraints
-              ?.audio;
+          videoDOMHtmlElement.style.opacity = this.props.participants.get(participantId)?.streamConstraints?.video ? 1 : 0;
+          videoDOMHtmlElement.muted = !this.props.participants.get(participantId)?.streamConstraints?.audio;
         }
       }
     });
@@ -200,12 +171,8 @@ class VideoCallsComponent extends React.Component {
             height: defaultSubTabHeight,
             width: "100%",
             backgroundColor: colorConfigs.tabSubHeaders,
-          }}
-        >
-          <Row
-            className="d-flex justify-content-between"
-            style={{ maxWidth: "60px" }}
-          >
+          }}>
+          <Row className="d-flex justify-content-between" style={{ maxWidth: "60px" }}>
             <div
               className="px-0"
               style={{ width: "fit-content", cursor: "pointer" }}
@@ -214,22 +181,11 @@ class VideoCallsComponent extends React.Component {
                   video: !this.props.currentStreamConstraints.video,
                   audio: this.props.currentStreamConstraints.audio,
                 })
-              }
-            >
+              }>
               {this.props.currentStreamConstraints.video ? (
-                <VideoOff
-                  strokeWidth={"2px"}
-                  color="white"
-                  style={{ width: "fit-content" }}
-                  size={MainSubPanelIconSize}
-                />
+                <VideoOff strokeWidth={"2px"} color="white" style={{ width: "fit-content" }} size={MainSubPanelIconSize} />
               ) : (
-                <Video
-                  strokeWidth={"2px"}
-                  color="white"
-                  style={{ width: "fit-content" }}
-                  size={MainSubPanelIconSize}
-                />
+                <Video strokeWidth={"2px"} color="white" style={{ width: "fit-content" }} size={MainSubPanelIconSize} />
               )}
             </div>
             <div
@@ -240,22 +196,11 @@ class VideoCallsComponent extends React.Component {
                   video: this.props.currentStreamConstraints.video,
                   audio: !this.props.currentStreamConstraints.audio,
                 })
-              }
-            >
+              }>
               {this.props.currentStreamConstraints.audio ? (
-                <MicOff
-                  strokeWidth={"2px"}
-                  color="white"
-                  style={{ width: "fit-content" }}
-                  size={MainSubPanelIconSize}
-                />
+                <MicOff strokeWidth={"2px"} color="white" style={{ width: "fit-content" }} size={MainSubPanelIconSize} />
               ) : (
-                <Mic
-                  strokeWidth={"2px"}
-                  color="white"
-                  style={{ width: "fit-content" }}
-                  size={MainSubPanelIconSize}
-                />
+                <Mic strokeWidth={"2px"} color="white" style={{ width: "fit-content" }} size={MainSubPanelIconSize} />
               )}
             </div>
           </Row>
@@ -266,13 +211,8 @@ class VideoCallsComponent extends React.Component {
             height: MainPanelContainerHeight,
             overflow: "scroll",
             backgroundColor: colorConfigs.darkGrey,
-          }}
-        >
-          <div
-            className="d-flex"
-            ref={this.videostreamsListRef}
-            style={{ flexWrap: "wrap" }}
-          >
+          }}>
+          <div className="d-flex" ref={this.videostreamsListRef} style={{ flexWrap: "wrap" }}>
             <Col
               md={4}
               className="px-1"
@@ -280,16 +220,14 @@ class VideoCallsComponent extends React.Component {
                 height: "20vh",
                 overflow: "hidden",
                 borderRadius: "20px",
-              }}
-            >
+              }}>
               <div
                 style={{
                   height: "100%",
                   overflow: "hidden",
                   borderRadius: "20px",
                   backgroundColor: colorConfigs.tabHeaders,
-                }}
-              >
+                }}>
                 <video
                   ref={this.state.videoRef[0]}
                   className="w-100 h-100"
@@ -312,8 +250,7 @@ class VideoCallsComponent extends React.Component {
                     backgroundSize: "cover",
                     borderRadius: "7.5vh",
                     overflow: "hidden",
-                  }}
-                ></div>
+                  }}></div>
               </div>
               <div
                 className="d-flex mr-auto"
@@ -323,8 +260,7 @@ class VideoCallsComponent extends React.Component {
                   marginLeft: "20px",
                   position: "absolute",
                   zIndex: 2,
-                }}
-              >
+                }}>
                 <p className="my-auto" style={{ fontSize: "11px" }}>
                   {global.aboutMe?.name}
                 </p>
@@ -337,7 +273,4 @@ class VideoCallsComponent extends React.Component {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(VideoCallsComponent);
+export default connect(mapStateToProps, mapDispatchToProps)(VideoCallsComponent);

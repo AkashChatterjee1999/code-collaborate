@@ -5,6 +5,7 @@ import { colorConfigs, syncCodeDifferencesId } from "../config/configs";
 import { connect } from "react-redux";
 import CodingComponentDropdown from "./CodingComponentDropdowns";
 import { isEqual } from "lodash";
+import { collabSocket } from "../utils/socketConnectors";
 import DiffSyncHelper from "../utils/diffSyncHelper";
 import { defaultTabHeight, defaultSubTabHeight, rightSidebarTabHeights } from "../config/configs";
 import * as AceCollabExt from "@convergence/ace-collab-ext";
@@ -170,6 +171,7 @@ class CodingComponent extends React.Component {
           let currentCursorPosition = this.codeEditor.current.editor.getCursorPosition();
           this.prevCodeSnapshot = updatedCode;
           this.codeEditor.current.editor.setValue(updatedCode);
+          this.codeEditor.current.editor.clearSelection();
           this.codeEditor.current.editor.moveCursorTo(currentCursorPosition.row, currentCursorPosition.column);
         }
       }
@@ -184,11 +186,11 @@ class CodingComponent extends React.Component {
         if (!(currentCursorPosition.row === 0 && currentCursorPosition.column === 0)) {
           if (!this.state.addedCursorPosition) {
             this.setState({ addedCursorPosition: true, previousCursorPosition: currentCursorPosition }, () => {
-              global.myCollabSocket.addCursorPosition(currentCursorPosition);
+              collabSocket.addCursorPosition(currentCursorPosition);
             });
           } else if (!isEqual(currentCursorPosition, this.state.previousCursorPosition)) {
             this.setState({ previousCursorPosition: currentCursorPosition }, () => {
-              global.myCollabSocket.updateCursorPosition(currentCursorPosition);
+              collabSocket.updateCursorPosition(currentCursorPosition);
             });
           }
         }
