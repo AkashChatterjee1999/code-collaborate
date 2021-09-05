@@ -48,10 +48,3 @@ export const updateEditorCursorManager = (cursorManagerReference) => {
     cursorManagerReference,
   };
 };
-
-export const updateCode = (updatedCode) => {
-  return {
-    type: "UPDATE_CODE",
-    updatedCode,
-  };
-};

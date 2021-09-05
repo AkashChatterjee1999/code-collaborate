@@ -19,7 +19,6 @@ class CollabSetupInitiator {
     participantDisconnectCb,
     onChatMessageRecieved,
     onParticipantStreamConstraintChangeCb,
-    onCodeChangedCb,
     onCursorsManipulationCb
   ) => {
     /**
@@ -169,6 +168,7 @@ class CollabSetupInitiator {
             clientData.cursorPosition = data.data.cursorPosition;
             this.participants.set(data.data.clientID, clientData);
             onCursorsManipulationCb("ADD", data.data.clientID, data.data.cursorPosition, clientData.name);
+            break;
           }
 
           case socketEvents.cursorPositionUpdated: {
@@ -176,14 +176,6 @@ class CollabSetupInitiator {
             clientData.cursorPosition = data.data.cursorPosition;
             this.participants.set(data.data.clientID, clientData);
             onCursorsManipulationCb("UPDATE", data.data.clientID, data.data.cursorPosition);
-          }
-
-          case socketEvents.codeUpdated: {
-            let clientCode = {
-              clientID: data.clientID,
-              code: data.code,
-            };
-            onCodeChangedCb(clientCode);
             break;
           }
 
@@ -249,23 +241,12 @@ class CollabSetupInitiator {
     );
   };
 
-  updateCode = (code) => {
-    this.socketPointer.send(
-      JSON.stringify({
-        responseEvent: socketEvents.codeUpdated,
-        clientID: this.id,
-        code: code,
-      })
-    );
-  };
-
   registerSocketCallbacks = (
     participantsCb,
     participantAddCb,
     participantDisconnectCb,
     onChatMessageRecieved,
     onParticipantStreamConstraintChangeCb,
-    onCodeChangedCb,
     onCursorsManipulationCb
   ) => {
     this.connectSocket(
@@ -274,7 +255,6 @@ class CollabSetupInitiator {
       participantDisconnectCb,
       onChatMessageRecieved,
       onParticipantStreamConstraintChangeCb,
-      onCodeChangedCb,
       onCursorsManipulationCb
     );
   };

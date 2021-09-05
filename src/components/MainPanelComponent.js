@@ -56,14 +56,9 @@ class MainPanelComponent extends React.Component {
             </div>
           </Row>
         </div>
-        {this.state.selectedPanel === 1 ? (
-          <CodingComponent onCodeChanged={(code) => this.props.codeUpdater(code)} />
-        ) : this.state.selectedPanel === 3 ? (
-          <DiscussionComponent />
-        ) : null}
-        {/* <VideoCallsComponent
-          className={this.state.selectedPanel === 2 ? "" : "d-none"}
-        /> */}
+        <CodingComponent className={this.state.selectedPanel === 1 ? "" : "d-none"} />
+        <VideoCallsComponent className={this.state.selectedPanel === 2 ? "" : "d-none"} />
+        <DiscussionComponent className={this.state.selectedPanel === 3 ? "" : "d-none"} />
       </Container>
     );
   }

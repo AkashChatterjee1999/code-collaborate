@@ -18,7 +18,6 @@ import {
   updateToCallParticipants,
   updatePeerStreamConstraints,
   updateStreamConstraints,
-  updateCode,
 } from "../redux/actions";
 
 const mapStateToProps = (props) => {
@@ -37,7 +36,6 @@ const mapDispatchToProps = (dispatch) => {
     updatePrevParticipants: (participants) => dispatch(updatePrevParticipants(participants)),
     updateToCallParticipants: (toCallParticipants) => dispatch(updateToCallParticipants(toCallParticipants)),
     updatePeerStreamConstraints: (participantId, constraintsData) => dispatch(updatePeerStreamConstraints(participantId, constraintsData)),
-    codeUpdater: (updatedCodeSocketData) => dispatch(updateCode(updatedCodeSocketData)),
   };
 };
 
@@ -87,7 +85,6 @@ class CollabEditor extends React.Component {
         this.deleteParticipant,
         this.addChat,
         this.onParticipantStreamConstraintChange,
-        this.onCodeUpdation,
         this.cursorManipulator
       );
     });
@@ -182,18 +179,9 @@ class CollabEditor extends React.Component {
     this.setState({ chats });
   };
 
-  onCodeUpdation = (socketCodeData) => {
-    this.props.codeUpdater(socketCodeData);
-  };
-
   sendChat = (chatMessage) => {
     console.log("Sending chat: ", chatMessage);
     this.collabSocket.sendChat(chatMessage);
-  };
-
-  updateCode = (code) => {
-    console.log("Updating Code: ", code);
-    this.collabSocket.updateCode(code);
   };
 
   render() {
@@ -280,7 +268,7 @@ class CollabEditor extends React.Component {
                 overflow: "hidden",
                 height: "100%",
               }}>
-              <MainPanelComponent participantIds={this.props.callableParticipantsArray} codeUpdater={this.updateCode} />
+              <MainPanelComponent participantIds={this.props.callableParticipantsArray} />
             </Container>
           </Col>
           <Col md={3} className="py-3" style={{ height: "87vh" }}>
