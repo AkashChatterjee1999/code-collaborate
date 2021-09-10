@@ -5,7 +5,7 @@ import { defaultTabHeight, defaultSubTabHeight, rightSidebarTabHeights } from ".
 import "./styles/codingComponent.scss";
 import { cloneDeep } from "lodash";
 import { connect } from "react-redux";
-import { collabSocket } from "../utils/socketConnectors";
+import { collabSocket, peerConnector } from "../utils/socketConnectors";
 import { VideoOff, Video, Mic, MicOff } from "react-feather";
 import { updatePeerStreamConstraints, updateStreamConstraints } from "../redux/actions";
 
@@ -32,6 +32,7 @@ class VideoCallsComponent extends React.Component {
   constructor(props) {
     super(props);
     this.videostreamsListRef = React.createRef();
+    this.peerConnector = null;
     this.state = {
       videoRef: {
         0: React.createRef(),
@@ -42,7 +43,8 @@ class VideoCallsComponent extends React.Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    this.peerConnector = await peerConnector.providePeer();
     navigator.mediaDevices
       .getUserMedia(this.props.currentStreamConstraints)
       .then((currentBrowserStream) => {
@@ -54,9 +56,9 @@ class VideoCallsComponent extends React.Component {
           this.state.videoRef[0].current.play();
         });
 
-        global.me.peer.on("call", this.gettingCalled);
-        global.me.peer.on("disconnected", function () {
-          global.me.peer.reconnect();
+        this.peerConnector.on("call", this.gettingCalled);
+        this.peerConnector.on("disconnected", function () {
+          this.peerConnector.reconnect();
         });
 
         this.setState({ currentBrowserStream }, () => {
@@ -76,9 +78,9 @@ class VideoCallsComponent extends React.Component {
 
   callAnotherUser = (userId) => {
     console.log("Am i calling?: ", userId, this.state.currentBrowserStream);
-    let anotherUserCallObj = global.me.peer.call(userId, this.state.currentBrowserStream);
+    let anotherUserCallObj = this.peerConnector.call(userId, this.state.currentBrowserStream);
     console.log(anotherUserCallObj);
-    global.me.peer.on("error", function (err) {
+    this.peerConnector.on("error", function (err) {
       console.log("PeerJs Error: ", err);
     });
     this.peerVideoStreamAdjuster(anotherUserCallObj, userId);
@@ -165,7 +167,7 @@ class VideoCallsComponent extends React.Component {
     return (
       <>
         <Row
-          className="m-0 justify-content-evenly"
+          className={`m-0 justify-content-evenly ${this.props.className}`}
           style={{
             overflow: "hidden",
             height: defaultSubTabHeight,
@@ -206,7 +208,7 @@ class VideoCallsComponent extends React.Component {
           </Row>
         </Row>
         <Container
-          className="py-3"
+          className={`py-3 ${this.props.className}`}
           style={{
             height: MainPanelContainerHeight,
             overflow: "scroll",

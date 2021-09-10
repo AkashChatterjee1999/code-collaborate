@@ -1,11 +1,7 @@
 import React from "react";
 import { Row, Container, Button, Col } from "reactstrap";
 import { colorConfigs } from "../config/configs";
-import {
-  defaultTabHeight,
-  defaultSubTabHeight,
-  rightSidebarTabHeights,
-} from "../config/configs";
+import { defaultTabHeight, defaultSubTabHeight, rightSidebarTabHeights } from "../config/configs";
 import "./styles/codingComponent.scss";
 
 const MainSubPanelIconSize = "12px";
@@ -20,22 +16,20 @@ class DiscussionComponent extends React.Component {
     return (
       <>
         <Row
-          className="m-0 justify-content-evenly"
+          className={`m-0 justify-content-evenly ${this.props.className}`}
           style={{
             overflow: "hidden",
             height: defaultSubTabHeight,
             width: "100%",
             backgroundColor: colorConfigs.tabSubHeaders,
-          }}
-        ></Row>
+          }}></Row>
         <Container
-          className="py-3"
+          className={`py-3 ${this.props.className}`}
           style={{
             height: MainPanelContainerHeight,
             overflow: "scroll",
             backgroundColor: colorConfigs.darkGrey,
-          }}
-        ></Container>
+          }}></Container>
       </>
     );
   }

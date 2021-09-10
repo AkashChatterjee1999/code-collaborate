@@ -1,18 +1,36 @@
 import Peer from "peerjs";
+import { collabSocketConnectorPromise } from "./socketConnectors";
 
 export default class PeerToPeerConnection {
-  constructor(id) {
-    this.peer = new Peer(id, {
-      host: "/",
-      port: "3002",
+  constructor() {
+    this.peerID = null;
+    this.peer = null;
+    this.peerHost = "/";
+    this.peerPort = "3002";
+  }
+
+  providePeer() {
+    console.log("hello");
+    return new Promise(async (resolve, reject) => {
+      if (this.peer !== null) resolve(this.peer);
+      else {
+        try {
+          let { clientID } = await collabSocketConnectorPromise;
+          this.peerID = clientID;
+          this.peer = new Peer(clientID, {
+            host: this.peerHost,
+            port: this.peerPort,
+          });
+          resolve(this.peer);
+        } catch (err) {
+          reject(err);
+        }
+      }
     });
   }
 
   callOthers(peerID, constraints, mediaStreamCb) {
-    let getUserMedia =
-      navigator.getUserMedia ||
-      navigator.webkitGetUserMedia ||
-      navigator.mozGetUserMedia;
+    let getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
     getUserMedia(
       constraints,
       (stream) => {
@@ -26,10 +44,7 @@ export default class PeerToPeerConnection {
   }
 
   gettingCalled(constraints, mediaStreamCb) {
-    var getUserMedia =
-      navigator.getUserMedia ||
-      navigator.webkitGetUserMedia ||
-      navigator.mozGetUserMedia;
+    var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
     this.peer.on("call", (call) => {
       getUserMedia(
         constraints,

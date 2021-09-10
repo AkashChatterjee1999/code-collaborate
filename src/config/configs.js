@@ -12,6 +12,7 @@ export let socketEvents = {
   chatEvent: "CHAT",
   codeUpdated: "UPDATED_CODE",
   cursorAdded: "ADD_CURSOR",
+  acknowledgeOpenEvent: "ACKNOWLEDGE_OPEN_EVENT",
   cursorPositionUpdated: "CURSOR_POSITION_CHANGED",
   clientInfoAcknowledgement: "ACKNOWLEDGE_CLIENT_INFO",
   clientInfoEvent: "CLIENT_INFO",

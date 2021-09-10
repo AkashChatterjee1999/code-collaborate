@@ -1,5 +1,4 @@
 import { socketEvents } from "../config/configs";
-import PeerToPeerConnection from "../utils/peerJsHelpers";
 
 class CollabSetupInitiator {
   constructor(socketDomain, profileName, profilePicURL, location, email, roomID) {
@@ -11,22 +10,16 @@ class CollabSetupInitiator {
     this.clientLocation = location;
     this.socketAddress = socketDomain;
     this.socketPointer = null;
+    this.socketReady = false;
     this.participants = new Map();
   }
 
-  connectSocket = (
-    onClientIDReadyCb,
-    participantsCb,
-    participantAddCb,
-    participantDisconnectCb,
-    onChatMessageRecieved,
-    onParticipantStreamConstraintChangeCb,
-    onCursorsManipulationCb
-  ) => {
+  initializeSocketConnection = (socketReadyCb) => {
     /**
      * Step1. Connect to my socket server
-     * Step2. Connect to peer server
-     * Step3. Check the mappings of clients and call them using peerjs
+     * Step2. Get a arbitary id
+     * Step3. Send the email id to the server
+     * Step4. Server will acknowledge with the existing id if found else with the same id
      */
 
     this.socketPointer = new WebSocket(`ws://${this.socketAddress}`);
@@ -45,42 +38,81 @@ class CollabSetupInitiator {
       try {
         // if the data is parseable JSON data
         data = JSON.parse(data);
+
+        /**
+         * When socket connection is successfull first socket server will send an id and clients already connected
+         * This is not the final id, after client_info is acknowledged final client_id is assigned to clioent.
+         * In response to this client needs to send their info to the socket server
+         * Socket server then broadcast this event as CLIENT_CONNECTED event to all the participants in room
+         * When the client gets disconnected then again socket server issues CLIENT_DISCONNECTED event and broadcasts this
+         */
+
+        if (data.responseEvent === socketEvents.openEvent) {
+          this.id = data.metadataData.id;
+
+          this.socketPointer.send(
+            JSON.stringify({
+              responseEvent: socketEvents.acknowledgeOpenEvent,
+              roomID: this.roomID,
+              clientEmail: this.email,
+            })
+          );
+        } else {
+          /**
+           * When the connection is successful then client is asking the server to generate the final client id for
+           * other dependent services like peer and diffserntial synchronization to work properly.
+           */
+          console.log("Server acknowledgement for open_event event: ", data);
+          this.id = data.data.id;
+          this.roomID = data.data.roomID;
+          this.socketReady = true;
+          socketReadyCb({ clientID: this.id, roomID: this.roomID });
+        }
+      } catch (err) {
+        console.log("Data non parseable as JSON... falling back it as a string message", err.stack);
+        console.log(data);
+      }
+    };
+  };
+
+  connectSocket = (
+    participantsCb,
+    participantAddCb,
+    participantDisconnectCb,
+    onChatMessageRecieved,
+    onParticipantStreamConstraintChangeCb,
+    onCursorsManipulationCb
+  ) => {
+    if (!this.socketReady || !this.id || !this.socketPointer) {
+      console.log("Callbacks cannot be registered before the socket is ready");
+      throw new Error("Callbacks cannot be registered before the socket is ready");
+    }
+    /**
+     * After getting basic information about my id,
+     * Just tell the server about yourself also so that it can broadcast that to all
+     * clients connected to this room and also about the room id,
+     * if you don't have server will generate one for you
+     */
+
+    this.socketPointer.send(
+      JSON.stringify({
+        responseEvent: socketEvents.clientInfoEvent,
+        clientName: this.clientName,
+        clientID: this.id,
+        profilePic: this.profilePicURL,
+        clientEmail: this.email,
+        roomID: this.roomID,
+        location: this.clientLocation,
+      })
+    );
+
+    this.socketPointer.onmessage = (socketDataPacket) => {
+      let data = socketDataPacket.data;
+      console.log("Socket Server Data: ", data);
+      try {
+        // if the data is parseable JSON data
+        data = JSON.parse(data);
         switch (data.responseEvent) {
-          // When socket connection is successful then do all those;
-          case socketEvents.openEvent: {
-            /**
-             * When socket connection is successfull first socket server will send an id and clients already connected
-             * This is not the final id, after client_info is acknowledged final client_id is assigned to clioent.
-             * In response to this client needs to send their info to the socket server
-             * Socket server then broadcast this event as CLIENT_CONNECTED event to all the participants in room
-             * When the client gets disconnected then again socket server issues CLIENT_DISCONNECTED event and broadcasts this
-             */
-
-            this.id = data.metadataData.id;
-
-            /**
-             * After getting basic information about my id,
-             * Just tell the server about yourself also so that it can broadcast that to all
-             * clients connected to this room and also about the room id,
-             * if you don't have server will generate one for you
-             */
-
-            this.socketPointer.send(
-              JSON.stringify({
-                responseEvent: socketEvents.clientInfoEvent,
-                clientName: this.clientName,
-                clientID: this.id,
-                profilePic: this.profilePicURL,
-                clientEmail: this.email,
-                roomID: this.roomID,
-                location: this.clientLocation,
-              })
-            );
-
-            console.log("Socket Server Ack: ", data.metadataData);
-            break;
-          }
-
           // When new client joins the server;
           case socketEvents.peerConnectionEvent: {
             let clientID = data.data.clientID;
@@ -111,8 +143,8 @@ class CollabSetupInitiator {
             console.log("Server acknowledgement for client_info event: ", data);
             this.id = data.data.id;
             this.roomID = data.data.roomID;
-            global.me = new PeerToPeerConnection(this.id);
-            onClientIDReadyCb(this.id, this.roomID);
+            // global.me = new PeerToPeerConnection(this.id);
+            // onClientIDReadyCb(this.id, this.roomID);
 
             /**
              * Getting the peers connected in the room and adding them to the map
@@ -259,23 +291,14 @@ class CollabSetupInitiator {
     onParticipantStreamConstraintChangeCb,
     onCursorsManipulationCb
   ) => {
-    return new Promise((resolve, reject) => {
-      try {
-        this.connectSocket(
-          (clientID, roomID) => {
-            resolve({ clientID, roomID });
-          },
-          participantsCb,
-          participantAddCb,
-          participantDisconnectCb,
-          onChatMessageRecieved,
-          onParticipantStreamConstraintChangeCb,
-          onCursorsManipulationCb
-        );
-      } catch (err) {
-        reject(err);
-      }
-    });
+    this.connectSocket(
+      participantsCb,
+      participantAddCb,
+      participantDisconnectCb,
+      onChatMessageRecieved,
+      onParticipantStreamConstraintChangeCb,
+      onCursorsManipulationCb
+    );
   };
 }
 

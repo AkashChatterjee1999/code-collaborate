@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 import CodingComponentDropdown from "./CodingComponentDropdowns";
 import { isEqual } from "lodash";
 import { collabSocket } from "../utils/socketConnectors";
-import DiffSyncHelper from "../utils/diffSyncHelper";
+import { diffSyncConnector } from "../utils/socketConnectors";
 import { defaultTabHeight, defaultSubTabHeight, rightSidebarTabHeights } from "../config/configs";
 import * as AceCollabExt from "@convergence/ace-collab-ext";
 import "@convergence/ace-collab-ext/css/ace-collab-ext.min.css";
@@ -159,9 +159,9 @@ class CodingComponent extends React.Component {
     codeEditorDiv.focus();
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     this.props.updateEditorCursorManagerRef(new AceCollabExt.AceMultiCursorManager(this.codeEditor.current.editor.getSession()));
-    this.codeDifferenceSynchronizer = new DiffSyncHelper(syncCodeDifferencesId);
+    this.codeDifferenceSynchronizer = await diffSyncConnector.provideDiffSync();
     this.codeDifferenceSynchronizer.registerDiffSyncEvents(
       (initialCode) => {
         if (initialCode) this.codeEditor.current.editor.setValue(initialCode);
@@ -202,7 +202,7 @@ class CodingComponent extends React.Component {
     return (
       <>
         <Row
-          className="m-0 justify-content-evenly"
+          className={`m-0 justify-content-evenly ${this.props.className}`}
           style={{
             overflow: "hidden",
             height: defaultSubTabHeight,
@@ -226,7 +226,7 @@ class CodingComponent extends React.Component {
           />
         </Row>
         <Container
-          className="py-3"
+          className={`py-3 ${this.props.className}`}
           style={{
             height: MainPanelContainerHeight,
             overflow: "scroll",

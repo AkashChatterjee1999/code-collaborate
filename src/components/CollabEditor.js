@@ -8,7 +8,7 @@ import { colorConfigs, assignColorToClientID } from "../config/configs";
 import MainPanelComponent from "../components/MainPanelComponent";
 import ParticipantsPanelComponent from "./participantsPanelComponent";
 import person1Sm from "../assets/images/person1-about-us-sm.png";
-import { meObj, collabSocket, registerCollabSocketCallbacks } from "../utils/socketConnectors";
+import { meObj, collabSocket, registerCollabSocketCallbacks, collabSocketConnectorPromise } from "../utils/socketConnectors";
 import InputOutputComponent from "./inputOutputComponent";
 import ChatComponent from "./ChatComponent";
 import {
@@ -61,7 +61,8 @@ class CollabEditor extends React.Component {
   }
   componentDidMount = () => {
     global.aboutMe = meObj;
-    this.setState({ me: meObj }, () => {
+    this.setState({ me: meObj }, async () => {
+      await collabSocketConnectorPromise;
       this.collabSocket = collabSocket;
       registerCollabSocketCallbacks(
         this.getParticipants,
