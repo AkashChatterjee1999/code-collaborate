@@ -44,13 +44,7 @@ class CollabEditor extends React.Component {
     super(props);
     this.collabSocket = null;
     this.state = {
-      host: {
-        pic: person1Sm,
-        name: "Rahul Prasad",
-        email: "rahul@uthaan.co.in",
-        location: "Gurgaon, India",
-        isOnline: true,
-      },
+      host: {},
       chats: [],
       me: {},
     };
@@ -88,7 +82,11 @@ class CollabEditor extends React.Component {
           break;
         }
         case "REMOVE": {
-          this.props.editorCursorManagerReference.removeCursor(clientID);
+          try {
+            this.props.editorCursorManagerReference.removeCursor(clientID);
+          } catch (err) {
+            console.log("Error in remving cursor: ", err);
+          }
           break;
         }
         default: {
@@ -101,7 +99,8 @@ class CollabEditor extends React.Component {
 
   getParticipants = (roomParticipants) => {
     let participants = new Map(),
-      callableParticipantsArray = [];
+      callableParticipantsArray = [],
+      roomHost = {};
     roomParticipants.forEach((participantData, participantId) => {
       let participantInfo = {
         pic: participantData.profilePic,
@@ -110,11 +109,13 @@ class CollabEditor extends React.Component {
         location: participantData.location,
         streamConstraints: participantData.streamConstraints,
       };
+      if (participantData.isHost) roomHost = participantInfo;
       participants.set(participantId, participantInfo);
       if (this.collabSocket.id !== participantId) callableParticipantsArray.push(participantId);
     });
     this.props.updatePrevParticipants(participants);
     this.props.updateToCallParticipants(callableParticipantsArray);
+    this.setState({ host: roomHost });
   };
 
   addParticipant = (clientId, clientData) => {
@@ -242,7 +243,7 @@ class CollabEditor extends React.Component {
         </Container>
         <Row className="px-3">
           <Col md={3} style={{ height: "87vh", overflow: "hidden" }} className="py-3">
-            <ParticipantsPanelComponent host={this.state.host} participants={this.props.participants} />
+            <ParticipantsPanelComponent host={this.state.host} />
           </Col>
           <Col md={6} className="py-3" style={{ height: "87vh" }}>
             <Container

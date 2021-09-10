@@ -54,6 +54,7 @@ class CollabSetupInitiator {
             JSON.stringify({
               responseEvent: socketEvents.acknowledgeOpenEvent,
               roomID: this.roomID,
+              clientID: this.id,
               clientEmail: this.email,
             })
           );
@@ -158,6 +159,7 @@ class CollabSetupInitiator {
                 location: client.location,
                 email: client.email,
                 streamConstraints: client.streamConstraints,
+                isHost: client.isHost,
               };
               if (client.cursorPosition) {
                 participantObj.cursorPosition = client.cursorPosition;
