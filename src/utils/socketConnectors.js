@@ -13,7 +13,14 @@ export const meObj = {
 export const peerConnector = new PeerToPeerConnection();
 export const diffSyncConnector = new DiffSyncHelper();
 
-const collabSocket = new CollabSetupInitiator("localhost:5050", meObj.name, meObj.profilePicURL, meObj.location, meObj.email, meObj.roomID);
+const collabSocket = new CollabSetupInitiator(
+  "code-collaborate-backend.herokuapp.com",
+  meObj.name,
+  meObj.profilePicURL,
+  meObj.location,
+  meObj.email,
+  meObj.roomID
+);
 
 const collabSocketConnectorPromise = new Promise((resolve, reject) => {
   try {

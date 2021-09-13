@@ -5,8 +5,8 @@ export default class PeerToPeerConnection {
   constructor() {
     this.peerID = null;
     this.peer = null;
-    this.peerHost = "/";
-    this.peerPort = "3002";
+    this.peerHost = "code-collaborate-peer-server.herokuapp.com";
+    this.peerPort = "5002";
   }
 
   providePeer() {
@@ -19,7 +19,8 @@ export default class PeerToPeerConnection {
           this.peerID = clientID;
           this.peer = new Peer(clientID, {
             host: this.peerHost,
-            port: this.peerPort,
+            port: "443",
+            secure: true,
           });
           resolve(this.peer);
         } catch (err) {

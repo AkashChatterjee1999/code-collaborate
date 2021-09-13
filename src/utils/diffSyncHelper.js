@@ -7,8 +7,8 @@ class DiffSyncHelper {
     this.id = null;
     this.client = null;
     this.dataReference = null;
-    this.diffsyncHost = "localhost";
-    this.diffsyncPort = "5051";
+    this.diffsyncHost = "code-collaborate-backend.herokuapp.com";
+    this.diffsyncPort = "";
   }
 
   provideDiffSync() {
@@ -18,7 +18,7 @@ class DiffSyncHelper {
         try {
           let { roomID } = await collabSocketConnectorPromise;
           this.id = roomID;
-          this.client = new DiffSyncClient(socket(`http://${this.diffsyncHost}:${this.diffsyncPort}`), this.id);
+          this.client = new DiffSyncClient(socket(`https://${this.diffsyncHost}`, { path: "/diffSync-socket/socket.io" }), this.id);
           resolve(this);
         } catch (err) {
           reject(err);
