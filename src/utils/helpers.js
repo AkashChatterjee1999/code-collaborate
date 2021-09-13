@@ -22,7 +22,7 @@ class CollabSetupInitiator {
      * Step4. Server will acknowledge with the existing id if found else with the same id
      */
 
-    this.socketPointer = new WebSocket(`ws://${this.socketAddress}/codeCollab-socket`);
+    this.socketPointer = new WebSocket(`wss://${this.socketAddress}/codeCollab-socket`);
 
     this.socketPointer.onopen = () => {
       console.log("Connected to CollabSocket-Server");

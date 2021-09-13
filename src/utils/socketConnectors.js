@@ -14,7 +14,7 @@ export const peerConnector = new PeerToPeerConnection();
 export const diffSyncConnector = new DiffSyncHelper();
 
 const collabSocket = new CollabSetupInitiator(
-  "code-collaborate-backend.herokuapp.com",
+  "code-collaborate-backend.herokuapp.com:443",
   meObj.name,
   meObj.profilePicURL,
   meObj.location,
