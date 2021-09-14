@@ -62,12 +62,13 @@ class VideoCallsComponent extends React.Component {
         });
 
         this.setState({ currentBrowserStream }, () => {
-          if (!this.state.calledOthers) {
+          if (!this.state.calledOthers && this.props.callableParticipantsArray.length > 0) {
             this.props.callableParticipantsArray.forEach((participantId) => {
               if (participantId !== collabSocket.id)
                 // if this peer participant ss not me then only call them
                 this.callAnotherUser(participantId);
             });
+            this.state.calledOthers = true; // because i don't wanna call render();
           }
         });
       })
@@ -79,7 +80,7 @@ class VideoCallsComponent extends React.Component {
   callAnotherUser = (userId) => {
     console.log("Am i calling?: ", userId, this.state.currentBrowserStream);
     let anotherUserCallObj = this.peerConnector.call(userId, this.state.currentBrowserStream);
-    console.log(anotherUserCallObj);
+    console.log("call another user obj: ", anotherUserCallObj);
     this.peerConnector.on("error", function (err) {
       console.log("PeerJs Error: ", err);
     });
@@ -149,6 +150,14 @@ class VideoCallsComponent extends React.Component {
 
   performVideoCallsStateChangeOnGlobalEvents = () => {
     console.log("Particpants current situation: ", this.props.participants);
+    if (!this.state.calledOthers && this.props.callableParticipantsArray.length > 0 && this.state.currentBrowserStream !== "") {
+      this.props.callableParticipantsArray.forEach((participantId) => {
+        if (participantId !== collabSocket.id)
+          // if this peer participant ss not me then only call them
+          this.callAnotherUser(participantId);
+      });
+      this.state.calledOthers = true; // because i don't wanna call render();
+    }
     Array.from(this.props.participants.keys()).forEach((participantId) => {
       if (!this.props.participants.get(participantId).isOnline && this.state.videoRef[participantId]) {
         this.state.videoRef[participantId].remove();

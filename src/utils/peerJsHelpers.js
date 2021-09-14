@@ -6,11 +6,10 @@ export default class PeerToPeerConnection {
     this.peerID = null;
     this.peer = null;
     this.peerHost = "code-collaborate-peer-server.herokuapp.com";
-    this.peerPort = "5002";
+    this.peerPort = "443";
   }
 
   providePeer() {
-    console.log("hello");
     return new Promise(async (resolve, reject) => {
       if (this.peer !== null) resolve(this.peer);
       else {
@@ -19,7 +18,7 @@ export default class PeerToPeerConnection {
           this.peerID = clientID;
           this.peer = new Peer(clientID, {
             host: this.peerHost,
-            port: "443",
+            port: this.peerPort,
             secure: true,
           });
           resolve(this.peer);

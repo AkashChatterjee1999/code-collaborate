@@ -153,11 +153,6 @@ class CollabSetupInitiator {
               email: data.data.email,
               streamConstraints: data.data.streamConstraints,
             });
-            if (this.id !== clientID) {
-              //&& this.onOtherParticipantJoined
-              console.log("Tried to call man: ", clientID);
-              // onOtherParticipantJoinedCb(clientID);
-            }
             break;
           }
 
