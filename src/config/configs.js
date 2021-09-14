@@ -12,6 +12,8 @@ export let socketEvents = {
   chatEvent: "CHAT",
   codeUpdated: "UPDATED_CODE",
   cursorAdded: "ADD_CURSOR",
+  heartbeat: "HEARTBEAT",
+  acknowledgeHeartbeat: "ACKNOWLEDGE_HEARTBEAT",
   acknowledgeOpenEvent: "ACKNOWLEDGE_OPEN_EVENT",
   cursorPositionUpdated: "CURSOR_POSITION_CHANGED",
   clientInfoAcknowledgement: "ACKNOWLEDGE_CLIENT_INFO",
@@ -19,7 +21,7 @@ export let socketEvents = {
   clientStreamStateChange: "STREAM_STATE_CHANGE",
 };
 
-export const syncCodeDifferencesId = "7eqdabbak-124124dqw-23423r2-d23d23d";
+export const heartBeatInterval = 10000;
 export const assignColorToClientID = () => {
   let colors = ["red", "orange", "pink", "yellow", "blue", "green"];
   let no = Math.floor(Math.random() * 90 + 10);

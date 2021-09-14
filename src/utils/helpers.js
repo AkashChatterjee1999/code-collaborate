@@ -1,4 +1,5 @@
 import { socketEvents } from "../config/configs";
+import { heartBeatInterval } from "../config/configs";
 
 class CollabSetupInitiator {
   constructor(socketDomain, profileName, profilePicURL, location, email, roomID) {
@@ -11,6 +12,8 @@ class CollabSetupInitiator {
     this.socketAddress = socketDomain;
     this.socketPointer = null;
     this.socketReady = false;
+    this.heartbeatCount = 0;
+    this.recentSocketInteractionTimestamp = new Date(Date.now());
     this.participants = new Map();
   }
 
@@ -26,6 +29,22 @@ class CollabSetupInitiator {
 
     this.socketPointer.onopen = () => {
       console.log("Connected to CollabSocket-Server");
+      setInterval(() => {
+        let lastInteractionTimeSeconds = (new Date(Date.now()).getTime() - this.recentSocketInteractionTimestamp?.getTime()) / 1000;
+        if (this.heartbeatCount > 30) {
+          // TODO: you are inactive
+        } else if (lastInteractionTimeSeconds > heartBeatInterval / 1000) {
+          this.heartbeatCount += 1;
+          this.socketPointer.send(
+            JSON.stringify({
+              responseEvent: socketEvents.heartbeat,
+            })
+          );
+        } else {
+          this.heartbeatCount = 0;
+        }
+      }, heartBeatInterval);
+      console.log("Registered heartbeat checker");
     };
 
     this.socketPointer.onclose = () => {
@@ -34,6 +53,7 @@ class CollabSetupInitiator {
 
     this.socketPointer.onmessage = (socketDataPacket) => {
       let data = socketDataPacket.data;
+      this.recentSocketInteractionTimestamp = new Date(Date.now());
       console.log("Socket Server Data: ", data);
       try {
         // if the data is parseable JSON data
@@ -95,6 +115,7 @@ class CollabSetupInitiator {
      * if you don't have server will generate one for you
      */
 
+    this.recentSocketInteractionTimestamp = new Date(Date.now());
     this.socketPointer.send(
       JSON.stringify({
         responseEvent: socketEvents.clientInfoEvent,
@@ -109,6 +130,7 @@ class CollabSetupInitiator {
 
     this.socketPointer.onmessage = (socketDataPacket) => {
       let data = socketDataPacket.data;
+      this.recentSocketInteractionTimestamp = new Date(Date.now());
       console.log("Socket Server Data: ", data);
       try {
         // if the data is parseable JSON data
@@ -144,8 +166,6 @@ class CollabSetupInitiator {
             console.log("Server acknowledgement for client_info event: ", data);
             this.id = data.data.id;
             this.roomID = data.data.roomID;
-            // global.me = new PeerToPeerConnection(this.id);
-            // onClientIDReadyCb(this.id, this.roomID);
 
             /**
              * Getting the peers connected in the room and adding them to the map
@@ -203,6 +223,11 @@ class CollabSetupInitiator {
             break;
           }
 
+          case socketEvents.acknowledgeHeartbeat: {
+            console.log("Service is online, heartbeat check success");
+            break;
+          }
+
           case socketEvents.cursorAdded: {
             let clientData = this.participants.get(data.data.clientID);
             clientData.cursorPosition = data.data.cursorPosition;
@@ -235,6 +260,7 @@ class CollabSetupInitiator {
   };
 
   sendChat = (chatMessage) => {
+    this.recentSocketInteractionTimestamp = new Date(Date.now());
     this.socketPointer.send(
       JSON.stringify({
         responseEvent: socketEvents.chatEvent,
@@ -246,6 +272,7 @@ class CollabSetupInitiator {
   };
 
   changeStreamState = (video, audio) => {
+    this.recentSocketInteractionTimestamp = new Date(Date.now());
     this.socketPointer.send(
       JSON.stringify({
         responseEvent: socketEvents.clientStreamStateChange,
@@ -260,6 +287,7 @@ class CollabSetupInitiator {
   };
 
   addCursorPosition = (cursorPosition) => {
+    this.recentSocketInteractionTimestamp = new Date(Date.now());
     this.socketPointer.send(
       JSON.stringify({
         responseEvent: socketEvents.cursorAdded,
@@ -273,6 +301,7 @@ class CollabSetupInitiator {
   };
 
   updateCursorPosition = (cursorPosition) => {
+    this.recentSocketInteractionTimestamp = new Date(Date.now());
     this.socketPointer.send(
       JSON.stringify({
         responseEvent: socketEvents.cursorPositionUpdated,

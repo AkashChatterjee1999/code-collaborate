@@ -47,6 +47,7 @@ class CollabEditor extends React.Component {
       host: {},
       chats: [],
       me: {},
+      roomID: "",
     };
     this.streamConstraints = {
       video: true,
@@ -56,7 +57,7 @@ class CollabEditor extends React.Component {
   componentDidMount = () => {
     global.aboutMe = meObj;
     this.setState({ me: meObj }, async () => {
-      await collabSocketConnectorPromise;
+      let { roomID } = await collabSocketConnectorPromise;
       this.collabSocket = collabSocket;
       registerCollabSocketCallbacks(
         this.getParticipants,
@@ -66,6 +67,7 @@ class CollabEditor extends React.Component {
         this.onParticipantStreamConstraintChange,
         this.cursorManipulator
       );
+      this.setState({ roomID });
     });
   };
 
@@ -190,12 +192,14 @@ class CollabEditor extends React.Component {
         <Container fluid className="d-flex" style={{ height: "40px", backgroundColor: colorConfigs.darkGrey }}>
           <Row className="w-50 px-3 my-auto justify-content-evenly" style={{ maxWidth: "500px" }}>
             <StatusHeaderDropdown
+              roomID={this.state.roomID}
               icon={
                 <div className="p-0" style={{ width: "fit-content" }}>
                   <UserPlus className="p-0" color="white" size="18px" />
                 </div>
               }
               text="Invite"
+              type={1}
             />
             <StatusHeaderDropdown
               icon={
@@ -204,6 +208,7 @@ class CollabEditor extends React.Component {
                 </div>
               }
               text="Layout"
+              type={2}
             />
             <StatusHeaderDropdown
               icon={
@@ -212,6 +217,7 @@ class CollabEditor extends React.Component {
                 </div>
               }
               text="Time"
+              type={3}
             />
             <StatusHeaderDropdown
               icon={
@@ -220,6 +226,7 @@ class CollabEditor extends React.Component {
                 </div>
               }
               text="Presentation"
+              type={4}
             />
           </Row>
           <Row className="w-25 px-3 my-auto justify-content-evenly ml-auto" style={{ maxWidth: "300px" }}>
@@ -230,6 +237,7 @@ class CollabEditor extends React.Component {
                 </div>
               }
               text="Dashboard"
+              type={5}
             />
             <StatusHeaderDropdown
               icon={
@@ -238,6 +246,7 @@ class CollabEditor extends React.Component {
                 </div>
               }
               text="Language"
+              type={6}
             />
           </Row>
         </Container>
