@@ -17,6 +17,21 @@ export default class PeerToPeerConnection {
           let { clientID } = await collabSocketConnectorPromise;
           this.peerID = clientID;
           this.peer = new Peer(clientID, {
+            config: {
+              iceServers: [
+                { urls: "stun:stun1.l.google.com:19302" },
+                { urls: "stun:stun2.l.google.com:19302" },
+                { urls: "stun:stun3.l.google.com:19302" },
+                { urls: "stun:stun4.l.google.com:19302" },
+                { urls: "stun:stun.l.google.com:19302" },
+                { urls: "stun:stun01.sipphone.com" },
+                { urls: "stun:stun.ekiga.net" },
+                { urls: "stun:stun.services.mozilla.com" },
+                { urls: "stun:stun.ideasip.com" },
+                { urls: "stun:stun.iptel.org" },
+                { urls: "stun:stun.rixtelecom.se" },
+              ],
+            },
             host: this.peerHost,
             port: this.peerPort,
             secure: true,
