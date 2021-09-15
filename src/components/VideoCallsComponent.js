@@ -57,8 +57,11 @@ class VideoCallsComponent extends React.Component {
         });
 
         this.peerConnector.on("call", this.gettingCalled);
-        this.peerConnector.on("disconnected", function () {
+        this.peerConnector.on("disconnected", () => {
           this.peerConnector.reconnect();
+        });
+        this.peerConnector.on("error", (error) => {
+          console.log("PeerJS Error:  ", error, error.stack);
         });
 
         this.setState({ currentBrowserStream }, () => {
@@ -81,9 +84,6 @@ class VideoCallsComponent extends React.Component {
     console.log("Am i calling?: ", userId, this.state.currentBrowserStream);
     let anotherUserCallObj = this.peerConnector.call(userId, this.state.currentBrowserStream);
     console.log("call another user obj: ", anotherUserCallObj);
-    this.peerConnector.on("error", function (err) {
-      console.log("PeerJs Error: ", err);
-    });
     this.peerVideoStreamAdjuster(anotherUserCallObj, userId);
   };
 

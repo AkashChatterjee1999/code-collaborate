@@ -5,7 +5,7 @@ export default class PeerToPeerConnection {
   constructor() {
     this.peerID = null;
     this.peer = null;
-    this.peerHost = "peerjs-server.herokuapp.com";
+    this.peerHost = "code-collaborate-peer-server.herokuapp.com";
     this.peerPort = "443";
   }
 
@@ -17,6 +17,19 @@ export default class PeerToPeerConnection {
           let { clientID } = await collabSocketConnectorPromise;
           this.peerID = clientID;
           this.peer = new Peer(clientID, {
+            config: {
+              iceServers: [
+                {
+                  urls: ["stun:eu-turn4.xirsys.com"],
+                },
+                {
+                  username: "ml0jh0qMKZKd9P_9C0UIBY2G0nSQMCFBUXGlk6IXDJf8G2uiCymg9WwbEJTMwVeiAAAAAF2__hNSaW5vbGVl",
+                  credential: "4dd454a6-feee-11e9-b185-6adcafebbb45",
+                  urls: ["turn:eu-turn4.xirsys.com:80?transport=udp", "turn:eu-turn4.xirsys.com:3478?transport=tcp"],
+                },
+              ],
+            },
+            debug: 3,
             host: this.peerHost,
             port: this.peerPort,
             secure: true,
