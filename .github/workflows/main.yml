@@ -1,0 +1,42 @@
+name: "Application Deployer"
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build-and-deploy:
+    name: build application and deploy
+    runs-on: ubuntu-18.04
+    steps:
+      - name: checkout to branch
+        uses: actions/checkout@v2
+      - name: apt-get update
+        run: sudo apt update
+      - name: installing docker
+        run: curl -fsSL https://get.docker.com -o get-docker.sh
+      - name: starting docker
+        run: sudo sh get-docker.sh
+      - name: checking installation
+        run: docker --version
+      - name: Installing heroku cli
+        run: curl https://cli-assets.heroku.com/install.sh | sudo sh
+      - name: checking heroku installation
+        run: heroku --version
+      - name: Create .netrc for heroku
+        run: touch ~/.netrc
+      - name: Write creds in .netrc
+        run: echo "${{ secrets.HEROKU_NETRC }}" >> ~/.netrc
+      - name: login to docker
+        run: docker login --username=_ --password=$(heroku auth:token) registry.heroku.com
+
+      # Building and pushing code-collab-server
+      - name: Build codecollabfrontend
+        run: docker build -t codecollabfrontend .
+      - name: Tag the built image with heroku
+        run: docker tag codecollabfrontend registry.heroku.com/code-collaborate-web/web
+      - name: Push the image to heroku
+        run: docker push registry.heroku.com/code-collaborate-web/web
+
+      # deploying all the images
+      - name: Deploy codecollaborate
+        run: sudo heroku container:release web -a code-collaborate-web
