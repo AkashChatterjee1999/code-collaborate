@@ -2,7 +2,7 @@ name: Container Image Uploader
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   build-and-upload:
     name: Build image and upload to registry
