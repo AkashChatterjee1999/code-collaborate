@@ -1,6 +1,7 @@
 import CollabSetupInitiator from "../utils/helpers";
 import PeerToPeerConnection from "./peerJsHelpers";
 import DiffSyncHelper from "../utils/diffSyncHelper";
+import url from "url";
 
 export const meObj = {
   name: prompt("Your Name"),
