@@ -46,6 +46,7 @@ class CollabEditor extends React.Component {
     this.state = {
       host: {},
       chats: [],
+      codeOutputs: [],
       me: {},
       roomID: "",
     };
@@ -65,7 +66,8 @@ class CollabEditor extends React.Component {
         this.deleteParticipant,
         this.addChat,
         this.onParticipantStreamConstraintChange,
-        this.cursorManipulator
+        this.cursorManipulator,
+        this.codeOutputGenerated
       );
       this.setState({ roomID });
     });
@@ -145,6 +147,18 @@ class CollabEditor extends React.Component {
     this.props.updatePeerStreamConstraints(clientID, constraintsData);
   };
 
+  codeOutputGenerated = (clientID, codeOutput) => {
+    let codeOutputs = [...this.state.codeOutputs],
+      curDtTimeObj = new Date(Date.now());
+    codeOutputs.push({
+      profilePic: this.props.participants.get(clientID).pic,
+      sender: this.props.participants.get(clientID).name,
+      codeOutput,
+      timeStamp: `${curDtTimeObj.getHours()}:${curDtTimeObj.getMinutes()}`,
+    });
+    this.setState({ codeOutputs });
+  };
+
   globalStateChangeSubscriber = () => {
     // Sense the change of client's stream constraints
     if (!isEqual(this.props.videoStreamConstraints, this.streamConstraints)) {
@@ -165,6 +179,11 @@ class CollabEditor extends React.Component {
       timeStamp: `${curDtTimeObj.getHours()}:${curDtTimeObj.getMinutes()}`,
     });
     this.setState({ chats });
+  };
+
+  sendOutputData = (outputData) => {
+    console.log("Sending output notification: ", outputData);
+    this.collabSocket.sendCodeOutputNotification(outputData);
   };
 
   sendChat = (chatMessage) => {
@@ -275,7 +294,7 @@ class CollabEditor extends React.Component {
                 color: "white",
                 overflow: "hidden",
               }}>
-              <InputOutputComponent />
+              <InputOutputComponent codeOutputs={this.state.codeOutputs} sendOutputData={this.sendOutputData} />
               <ChatComponent chats={this.state.chats} sendChat={this.sendChat} />
             </Container>
           </Col>

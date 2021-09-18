@@ -78,9 +78,27 @@ const cursorManagerReducer = (state = {}, action) => {
   }
 };
 
+const updateCodeReducer = (state = { code: "", codeLanguage: "" }, action) => {
+  switch (action.type) {
+    case "UPDATE_CODE": {
+      state.code = action.code;
+      return state;
+    }
+
+    case "UPDATE_CODE_LANGUAGE": {
+      state.codeLanguage = action.codeLanguage;
+      return state;
+    }
+
+    default:
+      return state;
+  }
+};
+
 export default combineReducers({
   participantReducers,
   toCallParticipants,
   changeVideoStreamConstraints,
   cursorManagerReducer,
+  updateCodeReducer,
 });

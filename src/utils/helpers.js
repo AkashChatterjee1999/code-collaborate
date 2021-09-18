@@ -102,7 +102,8 @@ class CollabSetupInitiator {
     participantDisconnectCb,
     onChatMessageRecieved,
     onParticipantStreamConstraintChangeCb,
-    onCursorsManipulationCb
+    onCursorsManipulationCb,
+    onCodeOutputGeneratedCb
   ) => {
     if (!this.socketReady || !this.id || !this.socketPointer) {
       console.log("Callbacks cannot be registered before the socket is ready");
@@ -231,6 +232,12 @@ class CollabSetupInitiator {
             break;
           }
 
+          case socketEvents.codeOutputGenerated: {
+            let { clientID } = data;
+            onCodeOutputGeneratedCb(clientID, data.data);
+            break;
+          }
+
           case socketEvents.cursorPositionUpdated: {
             let clientData = this.participants.get(data.data.clientID);
             clientData.cursorPosition = data.data.cursorPosition;
@@ -252,6 +259,18 @@ class CollabSetupInitiator {
        * Message event ends here
        */
     };
+  };
+
+  sendCodeOutputNotification = (outputMsgPayload) => {
+    this.recentSocketInteractionTimestamp = new Date(Date.now());
+    this.socketPointer.send(
+      JSON.stringify({
+        responseEvent: socketEvents.codeOutputGenerated,
+        clientID: this.id,
+        roomID: this.roomID,
+        data: outputMsgPayload,
+      })
+    );
   };
 
   sendChat = (chatMessage) => {
@@ -315,7 +334,8 @@ class CollabSetupInitiator {
     participantDisconnectCb,
     onChatMessageRecieved,
     onParticipantStreamConstraintChangeCb,
-    onCursorsManipulationCb
+    onCursorsManipulationCb,
+    onCodeOutputGeneratedCb
   ) => {
     this.connectSocket(
       participantsCb,
@@ -323,7 +343,8 @@ class CollabSetupInitiator {
       participantDisconnectCb,
       onChatMessageRecieved,
       onParticipantStreamConstraintChangeCb,
-      onCursorsManipulationCb
+      onCursorsManipulationCb,
+      onCodeOutputGeneratedCb
     );
   };
 }

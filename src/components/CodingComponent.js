@@ -10,7 +10,7 @@ import { diffSyncConnector } from "../utils/socketConnectors";
 import { defaultTabHeight, defaultSubTabHeight } from "../config/configs";
 import * as AceCollabExt from "@convergence/ace-collab-ext";
 import "@convergence/ace-collab-ext/css/ace-collab-ext.min.css";
-import { updateEditorCursorManager } from "../redux/actions";
+import { updateEditorCursorManager, updateCode, updateCodeLanguage } from "../redux/actions";
 
 import "./styles/codingComponent.scss";
 import "ace-builds/src-noconflict/mode-javascript";
@@ -27,13 +27,15 @@ import "ace-builds/src-noconflict/theme-dracula";
 
 const mapStateToProps = (props) => {
   return {
-    updatedCodeData: props.codeUpdaterReducer,
+    updatedCodeData: props.updateCodeReducer,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     updateEditorCursorManagerRef: (cursorManagerRef) => dispatch(updateEditorCursorManager(cursorManagerRef)),
+    updateCode: (code) => dispatch(updateCode(code)),
+    updateCodeLanguage: (codeLanguage) => dispatch(updateCodeLanguage(codeLanguage)),
   };
 };
 
@@ -50,7 +52,7 @@ class CodingComponent extends React.Component {
       displayDropDown: false,
       selectedLanguage: {
         label: "Javascript",
-        value: "javascript",
+        value: "js",
       },
       addedCursorPosition: false,
       previousCursorPosition: {},
@@ -85,24 +87,24 @@ class CodingComponent extends React.Component {
       supportedLanguages: [
         {
           label: "Javascript",
-          value: "javascript",
+          value: "js",
         },
         {
           label: "Python3",
-          value: "python",
+          value: "python3",
         },
+        // {
+        //   label: "Go",
+        //   value: "go",
+        // },
         {
           label: "C/C++",
-          value: "c_cpp",
+          value: "c/c++",
         },
-        {
-          label: "JAVA",
-          value: "java",
-        },
-        {
-          label: "Go",
-          value: "golang",
-        },
+        // {
+        //   label: "JAVA",
+        //   value: "java",
+        // },
       ],
     };
   }
@@ -164,7 +166,10 @@ class CodingComponent extends React.Component {
     this.codeDifferenceSynchronizer = await diffSyncConnector.provideDiffSync();
     this.codeDifferenceSynchronizer.registerDiffSyncEvents(
       (initialCode) => {
-        if (initialCode) this.codeEditor.current.editor.setValue(initialCode);
+        if (initialCode) {
+          this.codeEditor.current.editor.setValue(initialCode);
+          this.props.updateCode(initialCode);
+        }
       },
       (updatedCode) => {
         if (updatedCode && this.prevCodeSnapshot !== updatedCode) {
@@ -173,6 +178,7 @@ class CodingComponent extends React.Component {
           this.codeEditor.current.editor.setValue(updatedCode);
           this.codeEditor.current.editor.clearSelection();
           this.codeEditor.current.editor.moveCursorTo(currentCursorPosition.row, currentCursorPosition.column);
+          this.props.updateCode(updatedCode);
         }
       }
     );
@@ -181,6 +187,7 @@ class CodingComponent extends React.Component {
   codeSyncAndCursorPositionUpdater = (code) => {
     this.prevCodeSnapshot = code;
     this.codeDifferenceSynchronizer.synchroizeDifferences(code, () => {
+      this.props.updateCode(code);
       if (this.codeEditor.current) {
         let currentCursorPosition = this.codeEditor.current.editor.getCursorPosition();
         if (!(currentCursorPosition.row === 0 && currentCursorPosition.column === 0)) {
@@ -217,7 +224,10 @@ class CodingComponent extends React.Component {
           <CodingComponentDropdown
             options={this.state.supportedLanguages}
             selection={this.state.selectedLanguage}
-            onChange={(option) => this.setState({ selectedLanguage: option })}
+            onChange={(option) => {
+              this.props.updateCodeLanguage(option.value);
+              this.setState({ selectedLanguage: option });
+            }}
           />
           <CodingComponentDropdown
             options={this.state.supportedThemes}

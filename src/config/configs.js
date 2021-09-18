@@ -13,6 +13,7 @@ export let socketEvents = {
   codeUpdated: "UPDATED_CODE",
   cursorAdded: "ADD_CURSOR",
   heartbeat: "HEARTBEAT",
+  codeOutputGenerated: "CODE_OUTPUT_GENERATED",
   acknowledgeHeartbeat: "ACKNOWLEDGE_HEARTBEAT",
   acknowledgeOpenEvent: "ACKNOWLEDGE_OPEN_EVENT",
   cursorPositionUpdated: "CURSOR_POSITION_CHANGED",

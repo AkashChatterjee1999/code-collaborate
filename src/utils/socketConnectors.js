@@ -38,7 +38,8 @@ export const registerCollabSocketCallbacks = (
   deleteParticipantCb,
   addChatCb,
   onParticipantStreamConstraintChangeCb,
-  cursorManipulatorCb
+  cursorManipulatorCb,
+  codeOutputGeneratedCb
 ) => {
   collabSocket.registerSocketCallbacks(
     getParticipantsCb,
@@ -46,7 +47,8 @@ export const registerCollabSocketCallbacks = (
     deleteParticipantCb,
     addChatCb,
     onParticipantStreamConstraintChangeCb,
-    cursorManipulatorCb
+    cursorManipulatorCb,
+    codeOutputGeneratedCb
   );
 };
 

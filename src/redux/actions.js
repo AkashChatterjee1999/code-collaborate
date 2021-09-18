@@ -6,6 +6,20 @@ export const addParticipant = (participantId, participantData) => {
   };
 };
 
+export const updateCode = (code) => {
+  return {
+    type: "UPDATE_CODE",
+    code,
+  };
+};
+
+export const updateCodeLanguage = (codeLanguage) => {
+  return {
+    type: "UPDATE_CODE_LANGUAGE",
+    codeLanguage,
+  };
+};
+
 export const updatePrevParticipants = (participants) => {
   return {
     type: "UPDATE_OLD_PARTICIPANTS",

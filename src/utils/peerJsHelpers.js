@@ -29,7 +29,7 @@ export default class PeerToPeerConnection {
                 },
               ],
             },
-            debug: 3,
+            debug: 2,
             host: this.peerHost,
             port: this.peerPort,
             secure: true,
