@@ -67,7 +67,7 @@ class CollabEditorParamChecker extends React.Component {
 
   render() {
     return this.state.openCollabEditor ? (
-      <Container fluid></Container>
+      <CollabEditor />
     ) : (
       <Container fluid className={`collabEditorParamChecker ${this.state.addClassName}`} style={{ background: colorConfigs.extreme }}>
         <p className="m-auto d-flex" style={{ fontSize: "25px" }}>
