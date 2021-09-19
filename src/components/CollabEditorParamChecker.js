@@ -84,9 +84,9 @@ class CollabEditorParamChecker extends React.Component {
 
   render() {
     return this.state.openCollabEditor ? (
-      <Suspense fallback={<LoaderScreen addClassName={this.state.addClassName} />}>
+      <React.Suspense fallback={<LoaderScreen addClassName={this.state.addClassName} />}>
         <CollabEditor />
-      </Suspense>
+      </React.Suspense>
     ) : (
       <LoaderScreen addClassName={this.state.addClassName} />
     );
