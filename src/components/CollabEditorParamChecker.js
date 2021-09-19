@@ -6,6 +6,23 @@ import { Terminal } from "react-feather";
 import "./styles/collabEditorParamChecker.scss";
 const CollabEditor = React.lazy(() => import("./CollabEditor"));
 
+const LoaderScreen = (props) => {
+  return (
+    <Container fluid className={`collabEditorParamChecker ${props.addClassName}`} style={{ background: colorConfigs.extreme }}>
+      <p className="m-auto d-flex" style={{ fontSize: "25px" }}>
+        Starting{" "}
+        <span className="d-flex mx-3">
+          <Terminal className="m-auto" size="35px" strokeWidth="4px" color="#f5791b" />
+          <p className="m-auto" style={{ fontSize: "25px" }}>
+            Code-Collaborate
+          </p>
+        </span>{" "}
+        ...
+      </p>
+    </Container>
+  );
+};
+
 class CollabEditorParamChecker extends React.Component {
   constructor(props) {
     super(props);
@@ -67,20 +84,11 @@ class CollabEditorParamChecker extends React.Component {
 
   render() {
     return this.state.openCollabEditor ? (
-      <CollabEditor />
+      <Suspense fallback={<LoaderScreen addClassName={this.state.addClassName} />}>
+        <CollabEditor />
+      </Suspense>
     ) : (
-      <Container fluid className={`collabEditorParamChecker ${this.state.addClassName}`} style={{ background: colorConfigs.extreme }}>
-        <p className="m-auto d-flex" style={{ fontSize: "25px" }}>
-          Starting{" "}
-          <span className="d-flex mx-3">
-            <Terminal className="m-auto" size="35px" strokeWidth="4px" color="#f5791b" />
-            <p className="m-auto" style={{ fontSize: "25px" }}>
-              Code-Collaborate
-            </p>
-          </span>{" "}
-          ...
-        </p>
-      </Container>
+      <LoaderScreen addClassName={this.state.addClassName} />
     );
   }
 }
