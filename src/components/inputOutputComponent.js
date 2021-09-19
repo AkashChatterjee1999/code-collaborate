@@ -102,20 +102,20 @@ class InputOutputComponent extends React.Component {
                 disabled={this.state.runButtonDisabled || this.props.updatedCodeData === ""}
                 style={{ width: "fit-content", display: "flex", cursor: "pointer" }}
                 onClick={(e) => this.runCode()}>
-                <Play className="my-auto" strokeWidth={"0px"} fill="green" style={{ width: "fit-content" }} size={"20px"} />
+                <Play className="my-auto" strokeWidth={"0px"} fill="green" size={"20px"} />
               </div>
             ) : null}
             <div
               className="mx-1"
               style={{ width: "fit-content", display: "flex", cursor: "pointer" }}
               onClick={(e) => this.setState({ selectedPanel: 1 })}>
-              <AlertCircle className="my-auto" strokeWidth={"2px"} color="white" style={{ width: "fit-content" }} size={MainPanelIconSize} />
+              <AlertCircle className="my-auto" strokeWidth={"2px"} color="white" size={MainPanelIconSize} />
             </div>
             <div
               className="mx-1"
               style={{ width: "fit-content", display: "flex", cursor: "pointer" }}
               onClick={(e) => this.setState({ selectedPanel: 2 })}>
-              <ArrowUpRight className="my-auto" strokeWidth={"2px"} color="white" style={{ width: "fit-content" }} size={MainPanelIconSize} />
+              <ArrowUpRight className="my-auto" strokeWidth={"2px"} color="white" size={MainPanelIconSize} />
             </div>
           </div>
         </div>

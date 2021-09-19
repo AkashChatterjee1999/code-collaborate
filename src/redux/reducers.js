@@ -78,7 +78,7 @@ const cursorManagerReducer = (state = {}, action) => {
   }
 };
 
-const updateCodeReducer = (state = { code: "", codeLanguage: "" }, action) => {
+const updateCodeReducer = (state = { code: "", codeLanguage: "js" }, action) => {
   switch (action.type) {
     case "UPDATE_CODE": {
       state.code = action.code;

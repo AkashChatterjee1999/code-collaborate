@@ -45,10 +45,10 @@ class InviteDropdown extends React.Component {
         }}>
         <p style={{ fontSize: "10.75px", color: "lightgray" }}>Copy this roomID and ask them to put this roomID when they join this room</p>
         <Row className="px-2">
-          <p className="my-auto" style={{ fontSize: "10px", color: "white", width: "fit-content" }}>
+          <p className="my-auto" style={{ fontSize: "10px", color: "white", width: "max-content" }}>
             Copy roomID
           </p>
-          <div style={{ width: "fit-content", height: "fit-content" }}>
+          <div style={{ width: "max-content", height: "max-content" }}>
             <Copy color="white" strokeWidth="2.75px" size="16" onClick={(e) => navigator.clipboard.writeText(this.state.roomID)}></Copy>
           </div>
         </Row>

@@ -213,7 +213,7 @@ class CollabEditor extends React.Component {
             <StatusHeaderDropdown
               roomID={this.state.roomID}
               icon={
-                <div className="p-0" style={{ width: "fit-content" }}>
+                <div className="p-0" style={{ width: "max-content" }}>
                   <UserPlus className="p-0" color="white" size="18px" />
                 </div>
               }
@@ -222,7 +222,7 @@ class CollabEditor extends React.Component {
             />
             <StatusHeaderDropdown
               icon={
-                <div className="p-0" style={{ width: "fit-content" }}>
+                <div className="p-0" style={{ width: "max-content" }}>
                   <Layout className="p-0" color="white" size="18px" />
                 </div>
               }
@@ -231,7 +231,7 @@ class CollabEditor extends React.Component {
             />
             <StatusHeaderDropdown
               icon={
-                <div className="p-0" style={{ width: "fit-content" }}>
+                <div className="p-0" style={{ width: "max-content" }}>
                   <Clock className="p-0" color="white" size="18px" />
                 </div>
               }
@@ -240,7 +240,7 @@ class CollabEditor extends React.Component {
             />
             <StatusHeaderDropdown
               icon={
-                <div className="p-0" style={{ width: "fit-content" }}>
+                <div className="p-0" style={{ width: "max-content" }}>
                   <Users className="p-0" color="white" size="18px" />
                 </div>
               }
@@ -251,7 +251,7 @@ class CollabEditor extends React.Component {
           <Row className="w-25 px-3 my-auto justify-content-evenly ml-auto" style={{ maxWidth: "300px" }}>
             <StatusHeaderDropdown
               icon={
-                <div className="p-0" style={{ width: "fit-content" }}>
+                <div className="p-0" style={{ width: "max-content" }}>
                   <Settings className="p-0" color="white" size="18px" />
                 </div>
               }
@@ -260,7 +260,7 @@ class CollabEditor extends React.Component {
             />
             <StatusHeaderDropdown
               icon={
-                <div className="p-0" style={{ width: "fit-content" }}>
+                <div className="p-0" style={{ width: "max-content" }}>
                   <Sliders className="p-0" color="white" size="18px" />
                 </div>
               }

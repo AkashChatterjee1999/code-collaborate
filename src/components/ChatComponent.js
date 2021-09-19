@@ -2,11 +2,7 @@ import React from "react";
 import { ArrowRight, Mic, Smile } from "react-feather";
 import { Container, Row, Col } from "reactstrap";
 import { colorConfigs } from "../config/configs";
-import {
-  defaultTabHeight,
-  defaultSubTabHeight,
-  rightSidebarTabHeights,
-} from "../config/configs";
+import { defaultTabHeight, defaultSubTabHeight, rightSidebarTabHeights } from "../config/configs";
 import { isEqual } from "lodash";
 const ParticipantIconSize = "16px";
 
@@ -57,16 +53,14 @@ class ChatComponent extends React.Component {
             height: defaultTabHeight,
             borderTopRightRadius: "10px",
             borderTopLeftRadius: "10px",
-          }}
-        >
+          }}>
           <p
             className="my-auto"
             style={{
               fontSize: "11px",
               width: "fit-content",
               fontWeight: 500,
-            }}
-          >{`Chats`}</p>
+            }}>{`Chats`}</p>
         </div>
         <Container
           fluid
@@ -75,16 +69,14 @@ class ChatComponent extends React.Component {
             height: rightSidebarTabHeights,
             backgroundColor: colorConfigs.darkGrey,
             overflow: "hidden",
-          }}
-        >
+          }}>
           <Container
             className="px-2"
             style={{
               width: "100%",
               height: "75%",
               overflow: "scroll",
-            }}
-          >
+            }}>
             {this.state.chats.map((chat, index) => {
               return (
                 <Container key={index} className="m-0 p-0 d-flex">
@@ -99,8 +91,7 @@ class ChatComponent extends React.Component {
                       backgroundRepeat: "no-repeat",
                       backgroundPosition: "center",
                       backgroundSize: "cover",
-                    }}
-                  >
+                    }}>
                     {/* <img
                       src={}
                       alt="person w-100 h-100"
@@ -114,21 +105,14 @@ class ChatComponent extends React.Component {
                       borderRadius: "15px",
                       height: "fit-content",
                       backgroundColor: colorConfigs.tabSubHeaders,
-                    }}
-                  >
-                    <p
-                      className="m-0"
-                      style={{ color: "white", fontSize: "11px" }}
-                    >
+                    }}>
+                    <p className="m-0" style={{ color: "white", fontSize: "11px" }}>
                       {chat.sender}
                       <span className="mx-2" style={{ color: "grey" }}>
                         {chat.timeStamp}
                       </span>
                     </p>
-                    <p
-                      className="mb-0 mt-2"
-                      style={{ fontSize: "10.85px", fontWeight: "normal" }}
-                    >
+                    <p className="mb-0 mt-2" style={{ fontSize: "10.85px", fontWeight: "normal" }}>
                       {chat.message}
                     </p>
                   </Container>
@@ -137,10 +121,7 @@ class ChatComponent extends React.Component {
             })}
           </Container>
           <hr />
-          <Container
-            className="d-flex m-0 p-0"
-            style={{ height: "calc( 100% - 90% )" }}
-          >
+          <Container className="d-flex m-0 p-0" style={{ height: "calc( 100% - 90% )" }}>
             <textarea
               placeholder="Send a Message"
               className="px-3 mb-2"
@@ -157,24 +138,16 @@ class ChatComponent extends React.Component {
                 fontSize: "12px",
               }}
               onKeyDown={this.chatHandleKeyDownChatBox}
-              onChange={this.chatMessageHandler}
-            ></textarea>
-            <Row
-              className="m-auto"
-              style={{ width: "80px", justifyContent: "space-evenly" }}
-            >
-              <div className="px-0" style={{ width: "fit-content" }}>
+              onChange={this.chatMessageHandler}></textarea>
+            <Row className="m-auto" style={{ width: "80px", justifyContent: "space-evenly" }}>
+              <div className="px-0" style={{ width: "max-content" }}>
                 <Mic color="gray" size={ParticipantIconSize} />
               </div>
-              <div className="px-0" style={{ width: "fit-content" }}>
+              <div className="px-0" style={{ width: "max-content" }}>
                 <Smile color="gray" size={ParticipantIconSize} />
               </div>
-              <div className="px-0" style={{ width: "fit-content" }}>
-                <ArrowRight
-                  color="gray"
-                  size={ParticipantIconSize}
-                  onClick={this.chatHandler}
-                />
+              <div className="px-0" style={{ width: "max-content" }}>
+                <ArrowRight color="gray" size={ParticipantIconSize} onClick={this.chatHandler} />
               </div>
             </Row>
           </Container>

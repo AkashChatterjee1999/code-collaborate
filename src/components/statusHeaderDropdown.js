@@ -39,13 +39,13 @@ class StatusHeaderDropdown extends React.Component {
   render() {
     return (
       <>
-        <div style={{ maxWidth: "fit-content" }} ref={this.ref} onClick={(e) => this.showDropdown(e)}>
-          <Row style={{ color: "white" }} className="m-auto">
+        <div style={{ maxWidth: "max-content" }} ref={this.ref} onClick={(e) => this.showDropdown(e)}>
+          <Row style={{ color: "white" }} className="m-auto d-flex">
             {this.props.icon}
-            <p className="mx-2 my-auto p-0" style={{ fontSize: "11px", width: "fit-content", fontWeight: 200 }}>
+            <p className="mx-2 my-auto p-0" style={{ fontSize: "11px", width: "max-content", fontWeight: 200 }}>
               {this.props.text}
             </p>
-            <div style={{ width: "fit-content" }} className="p-0 mt-n2">
+            <div style={{ width: "max-content" }} className="p-0 mt-n2">
               <ChevronDown className="p-0" size="12px" color="white" />
             </div>
           </Row>

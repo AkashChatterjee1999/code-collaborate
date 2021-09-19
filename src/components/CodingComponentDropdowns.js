@@ -23,7 +23,7 @@ class CodingComponentDropdown extends React.Component {
     return (
       <div
         className="d-flex m-auto"
-        style={{ width: "fit-content", minWidth: "100px" }}
+        style={{ width: "max-content", minWidth: "100px" }}
         ref={this.ref}
         onClick={(e) => {
           e.stopPropagation();
@@ -44,15 +44,15 @@ class CodingComponentDropdown extends React.Component {
           }}>
           {this.props.selection.label ? this.props.selection.label : this.props.selection}
         </p>
-        <div className="p-0 mt-n2" style={{ width: "fit-content" }}>
-          <ChevronDown color="white" style={{ width: "fit-content" }} size={MainSubPanelIconSize} />
+        <div className="p-0 mt-n2" style={{ width: "max-content" }}>
+          <ChevronDown color="white" size={MainSubPanelIconSize} />
         </div>
         <div
           className={`${this.state.displayDropDown ? "d-flex" : "d-none"} flex-column py-2`}
           style={{
             backgroundColor: colorConfigs.tabSubHeaders,
             color: "white",
-            height: "fit-content",
+            height: "max-content",
             width: this.state.DropDownMenuWidth,
             position: "absolute",
             fontSize: "10.5px",

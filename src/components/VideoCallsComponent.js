@@ -186,7 +186,7 @@ class VideoCallsComponent extends React.Component {
           <Row className="d-flex justify-content-between" style={{ maxWidth: "60px" }}>
             <div
               className="px-0"
-              style={{ width: "fit-content", cursor: "pointer" }}
+              style={{ width: "max-content", cursor: "pointer" }}
               onClick={(e) =>
                 this.props.updateStreamConstraints({
                   video: !this.props.currentStreamConstraints.video,
@@ -194,14 +194,14 @@ class VideoCallsComponent extends React.Component {
                 })
               }>
               {this.props.currentStreamConstraints.video ? (
-                <VideoOff strokeWidth={"2px"} color="white" style={{ width: "fit-content" }} size={MainSubPanelIconSize} />
+                <VideoOff strokeWidth={"2px"} color="white" size={MainSubPanelIconSize} />
               ) : (
-                <Video strokeWidth={"2px"} color="white" style={{ width: "fit-content" }} size={MainSubPanelIconSize} />
+                <Video strokeWidth={"2px"} color="white" size={MainSubPanelIconSize} />
               )}
             </div>
             <div
               className="px-0"
-              style={{ width: "fit-content", cursor: "pointer" }}
+              style={{ width: "max-content", cursor: "pointer" }}
               onClick={(e) =>
                 this.props.updateStreamConstraints({
                   video: this.props.currentStreamConstraints.video,
@@ -209,9 +209,9 @@ class VideoCallsComponent extends React.Component {
                 })
               }>
               {this.props.currentStreamConstraints.audio ? (
-                <MicOff strokeWidth={"2px"} color="white" style={{ width: "fit-content" }} size={MainSubPanelIconSize} />
+                <MicOff strokeWidth={"2px"} color="white" size={MainSubPanelIconSize} />
               ) : (
-                <Mic strokeWidth={"2px"} color="white" style={{ width: "fit-content" }} size={MainSubPanelIconSize} />
+                <Mic strokeWidth={"2px"} color="white" size={MainSubPanelIconSize} />
               )}
             </div>
           </Row>
@@ -249,11 +249,12 @@ class VideoCallsComponent extends React.Component {
                   muted
                 />
                 <div
+                  className={`${this.props.currentStreamConstraints.video ? "d-none" : ""}`}
                   style={{
                     width: "7.5vh",
                     height: "7.5vh",
                     position: "absolute",
-                    marginTop: "calc(-0.8 * 20vh)",
+                    marginTop: "calc(-0.75 * 20vh)",
                     marginLeft: "calc(0.16 * 33.33%)",
                     background: `url("${global.aboutMe?.profilePicURL}")`,
                     backgroundPosition: "center",

@@ -45,14 +45,14 @@ class MainPanelComponent extends React.Component {
             {"Main Panel"}
           </p>
           <Row className="my-auto ml-auto justify-content-between px-3" style={{ width: "100px" }}>
-            <div className="px-0" style={{ width: "fit-content", cursor: "pointer" }} onClick={(e) => this.setState({ selectedPanel: 1 })}>
-              <Code strokeWidth={"2px"} color="white" style={{ width: "fit-content" }} size={MainPanelIconSize} />
+            <div className="px-0" style={{ width: "max-content", cursor: "pointer" }} onClick={(e) => this.setState({ selectedPanel: 1 })}>
+              <Code strokeWidth={"2px"} color="white" size={MainPanelIconSize} />
             </div>
-            <div className="px-0" style={{ width: "fit-content", cursor: "pointer" }} onClick={(e) => this.setState({ selectedPanel: 2 })}>
-              <Grid strokeWidth={"2px"} color="white" style={{ width: "fit-content" }} size={MainPanelIconSize} />
+            <div className="px-0" style={{ width: "max-content", cursor: "pointer" }} onClick={(e) => this.setState({ selectedPanel: 2 })}>
+              <Grid strokeWidth={"2px"} color="white" size={MainPanelIconSize} />
             </div>
-            <div className="px-0" style={{ width: "fit-content", cursor: "pointer" }} onClick={(e) => this.setState({ selectedPanel: 3 })}>
-              <FileText strokeWidth={"2px"} color="white" style={{ width: "fit-content" }} size={MainPanelIconSize} />
+            <div className="px-0" style={{ width: "max-content", cursor: "pointer" }} onClick={(e) => this.setState({ selectedPanel: 3 })}>
+              <FileText strokeWidth={"2px"} color="white" size={MainPanelIconSize} />
             </div>
           </Row>
         </div>
