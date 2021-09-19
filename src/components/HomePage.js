@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, NavbarBrand, Navbar, NavbarText, Row, Col, CustomInput, Button } from "reactstrap";
+import { Container, NavbarBrand, Navbar, NavbarText, Row, Col, CustomInput, Button, Form } from "reactstrap";
 import { colorConfigs } from "../config/configs";
 import { Terminal } from "react-feather";
 import codeCollabLookPng from "../assets/images/code-collab-editor-look.png";
@@ -11,6 +11,8 @@ class HomePage extends React.Component {
     this.state = {
       roomID: "",
       location: "",
+      invalidRoomID: false,
+      disableForm: false,
     };
   }
   componentDidMount() {
@@ -29,11 +31,25 @@ class HomePage extends React.Component {
   handleAuth = () => {
     let base64State = btoa(JSON.stringify({ roomID: this.state.roomID, location: this.state.location }));
     let oAuthEndpoint =
-      `https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/drive.metadata.readonly` +
+      `https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile` +
       `&include_granted_scopes=true&response_type=token&` +
       `redirect_uri=https%3A//code-collaborate.netlify.app/editor&state=${base64State}&` +
       `client_id=25415606823-d15qcd5agfm2rf91dm4hpghfop4pl7rm.apps.googleusercontent.com`;
-    window.location.href = oAuthEndpoint;
+    this.setState({ disableForm: true }, () => {
+      if (this.state.roomID === "") {
+        window.location.href = oAuthEndpoint;
+      } else {
+        axios
+          .get(`https://code-collaborate-backend.herokuapp.com/api/v1/roomID/validate/${this.state.roomID}`)
+          .then((response) => {
+            window.location.href = oAuthEndpoint;
+          })
+          .catch((err) => {
+            console.log(err);
+            this.setState({ invalidRoomID: true, disableForm: false, roomID: "" });
+          });
+      }
+    });
   };
   render() {
     return (
@@ -55,8 +71,8 @@ class HomePage extends React.Component {
                   time code editing all of this in an intuitive looking UI.
                 </p>
                 <br />
-                <Row style={{ marginTop: "25px", marginBottom: "25px", justifyContent: "space-between" }}>
-                  <Col sm={5}>
+                <Row style={{ marginTop: "20px", marginBottom: "20px", justifyContent: "space-between" }}>
+                  <Form className="d-flex">
                     <CustomInput
                       type="text"
                       className="pb-2"
@@ -68,22 +84,27 @@ class HomePage extends React.Component {
                         borderLeft: "0px",
                         borderRight: "0px",
                       }}
+                      disabled={this.state.disableForm}
                       placeholder="Room ID"
                       value={this.state.roomID}
-                      onChange={(e) => this.setState({ roomID: e.target.value })}
+                      onChange={(e) => this.setState({ roomID: e.target.value, invalidRoomID: false })}
                     />
-                  </Col>
-                  <Col sm={5}>
                     <Button
                       className="d-block m-auto"
                       style={{
                         color: "white",
                         backgroundColor: "#f5791c",
                       }}
+                      disabled={this.state.disableForm}
                       onClick={this.handleAuth}>
                       {this.state.roomID === "" ? "Create Room" : "Proceed"}
                     </Button>
-                  </Col>
+                  </Form>
+                  {this.state.invalidRoomID ? (
+                    <p className="my-2" style={{ color: "red", fontSize: "12px", fontWeight: "bold" }}>
+                      Sorry this roomID doesnot exist
+                    </p>
+                  ) : null}
                 </Row>
                 <br />
                 <p style={{ fontSize: "15px" }}>
@@ -92,8 +113,8 @@ class HomePage extends React.Component {
               </Container>
             </Container>
           </Col>
-          <Col md={7}>
-            <img src={codeCollabLookPng} alt="collab-look" style={{ width: "85%" }} />
+          <Col md={7} className="d-flex flex-column">
+            <img className="m-auto" src={codeCollabLookPng} alt="collab-look" style={{ width: "85%" }} />
           </Col>
         </Row>
       </Container>

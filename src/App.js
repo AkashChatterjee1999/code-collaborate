@@ -1,10 +1,11 @@
 //import Editor from "./components/Editor";
-import CollabEditor from "./components/CollabEditor";
+import React from "react";
 import allReducers from "./redux/reducers";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { createStore } from "redux";
 import { Provider } from "react-redux";
 import HomePage from "./components/HomePage";
+import CollabEditorParamChecker from "./components/CollabEditorParamChecker";
 
 function App() {
   console.error = () => {};
@@ -13,7 +14,7 @@ function App() {
       <Router>
         <Switch>
           <Route path="/editor">
-            <CollabEditor />
+            <CollabEditorParamChecker />
           </Route>
           <Route path="/">
             <HomePage />

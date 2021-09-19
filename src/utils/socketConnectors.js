@@ -4,11 +4,11 @@ import DiffSyncHelper from "../utils/diffSyncHelper";
 import url from "url";
 
 export const meObj = {
-  name: prompt("Your Name"),
-  location: prompt("Your location"),
-  email: prompt("Your Email"),
-  profilePicURL: prompt("profilePicURL"),
-  roomID: prompt("roomID"),
+  name: localStorage.getItem("clientName"),
+  location: localStorage.getItem("location"),
+  email: localStorage.getItem("clientEmail"),
+  profilePicURL: localStorage.getItem("profilePicURL"),
+  roomID: localStorage.getItem("roomID"),
 };
 
 export const peerConnector = new PeerToPeerConnection();
