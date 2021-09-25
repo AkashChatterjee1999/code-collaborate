@@ -28,13 +28,14 @@ class ChatComponent extends React.Component {
   };
 
   chatMessageHandler = (e) => {
-    console.log(e.target.value);
     this.setState({ msg: e.target.value });
   };
 
   chatHandler = (e) => {
-    this.props.sendChat(this.state.msg);
-    this.setState({ msg: "" });
+    if (this.state.msg.length > 1) {
+      this.props.sendChat(this.state.msg);
+      this.setState({ msg: "" });
+    }
   };
 
   chatHandleKeyDownChatBox = (e) => {
