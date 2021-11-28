@@ -1,0 +1,9 @@
+.my-portfolio-link {
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+    color: #f5791b;
+  }
+}

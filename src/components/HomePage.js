@@ -4,6 +4,7 @@ import { colorConfigs } from "../config/configs";
 import { Terminal } from "react-feather";
 import codeCollabLookPng from "../assets/images/code-collab-editor-look.png";
 import axios from "axios";
+import "./styles/homePage.scss";
 
 class HomePage extends React.Component {
   constructor(props) {
@@ -108,7 +109,10 @@ class HomePage extends React.Component {
                 </Row>
                 <br />
                 <p style={{ fontSize: "15px" }}>
-                  Made with <span style={{ fontSize: "25px" }}>❤️</span> by <span style={{ fontSize: "20px" }}>Akash Chatterjee</span>
+                  Made with <span style={{ fontSize: "25px" }}>❤️</span> by{" "}
+                  <a href="https://akash-chatterjee.netlify.app" target="_blank" rel="noreferrer" className="my-portfolio-link">
+                    <span style={{ fontSize: "20px" }}>Akash Chatterjee</span>
+                  </a>
                 </p>
               </Container>
             </Container>
