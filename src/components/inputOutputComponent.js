@@ -42,7 +42,8 @@ class InputOutputComponent extends React.Component {
       .get(`https://code-collaborate-compiler.herokuapp.com/api/v1/checkStatus/${this.state.codeSubmissionAckID}`)
       .then((response) => {
         if (response.data.status === "executed") this.props.sendOutputData(response.data);
-        if (response.data.status !== "in queue...") {
+        else if (response.data.status === "in queue...") this.getCodeStatus();
+        else {
           this.setState({ isCodeSubmitted: false, codeSubmissionAckID: "" }, () => {
             if (global.codeStatusChecker) {
               // De-registering status poller
